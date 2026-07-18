@@ -1768,6 +1768,18 @@ function letGo(e){
 window.addEventListener('pointerup', letGo);
 window.addEventListener('pointercancel', letGo);
 kbv.addEventListener('contextmenu', e=>e.preventDefault());
+/* iOS 사파리: 피아노를 빠르게 치면 '더블탭 확대'로 오해해 화면이 확대되는 걸 막는다.
+   빠르게 두 번 톡(350ms 이내) 할 때의 확대 동작만 취소하고, 버튼 클릭은 그대로 둔다 */
+let lastTouchEnd=0;
+document.addEventListener('touchend', e=>{
+  const now=Date.now(), t=e.target;
+  const isBtn = t && t.closest && t.closest('button,a,input,select,textarea,.pick,.go-btn,.btn,.tbtn');
+  if(now-lastTouchEnd<=350 && !isBtn) e.preventDefault();
+  lastTouchEnd=now;
+}, {passive:false});
+/* 손가락 두 개로 벌려서 확대(핀치)도 게임 중엔 막는다 */
+['gesturestart','gesturechange','gestureend'].forEach(g=>
+  document.addEventListener(g, e=>e.preventDefault(), {passive:false}));
 $('kbL').addEventListener('click', ()=>nudge(-3));
 $('kbR').addEventListener('click', ()=>nudge(3));
 

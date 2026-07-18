@@ -260,7 +260,7 @@
   .stem{stroke-width:1.5}
   .beam{stroke-width:4.5;stroke-linecap:butt}
   .dot{fill:#241436}
-  .flag{fill:#241436}
+  .nflag{fill:#241436}   /* 음표 깃발 — 지도 마커용 .flag 와 이름이 겹치면 안 됨 */
   .solfa{font-family:var(--display);font-size:10px;fill:#8A6BB8;text-anchor:middle}
   .mnum{font-family:var(--body);font-size:7px;font-weight:800;fill:#C0AEDA;text-anchor:middle}
   #wipe{fill:#FFD34A;opacity:.13}
@@ -1582,7 +1582,7 @@ function drawNote(nt,x,y,id){
     /* 빔에 못 묶인 8분음표엔 깃발을 달아준다. 없으면 4분음표로 보인다 */
     if(nt.d===0.5){
       const dir=down?-1:1;
-      s+=`<path class="flag" d="M${sx} ${ey} c 5.5 ${dir*2} 7.5 ${dir*5.5} 6.8 ${dir*10.5}`+
+      s+=`<path class="nflag" d="M${sx} ${ey} c 5.5 ${dir*2} 7.5 ${dir*5.5} 6.8 ${dir*10.5}`+
          ` c 2.2 ${dir*-5} -0.3 ${dir*-8.5} -6.8 ${dir*-13.5} z"/>`;
     }
   }

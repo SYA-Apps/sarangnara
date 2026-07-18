@@ -1385,10 +1385,25 @@ function bgmStart(name){
    바로 틀고, 아니면 첫 pointerdown 한 번에 켠다. */
 function introBGM(){
   if(!$('screenTitle') || !$('screenTitle').classList.contains('on')) return;
-  if(ac && ac.state==='running'){ bgmStart('intro'); return; }
+  const go=()=>{
+    if(!$('screenTitle').classList.contains('on')) return;
+    ensureAC(); bgmStart('intro');
+    /* 폰에서 첫 터치 때 오디오가 아직 '잠든(suspended)' 상태면, 깨어나는 즉시
+       인트로를 다시 틀어 확실히 소리나게 한다 */
+    if(ac && ac.state!=='running'){
+      const kick=()=>{
+        if(ac && ac.state==='running'){
+          ac.removeEventListener('statechange', kick);
+          if($('screenTitle').classList.contains('on')){ bgmName=null; bgmStart('intro'); }
+        }
+      };
+      ac.addEventListener('statechange', kick);
+    }
+  };
+  if(ac && ac.state==='running'){ go(); return; }
   const once=()=>{
     document.removeEventListener('pointerdown', once, true);
-    if($('screenTitle').classList.contains('on')){ ensureAC(); bgmStart('intro'); }
+    go();
   };
   document.addEventListener('pointerdown', once, true);
 }

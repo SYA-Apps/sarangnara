@@ -1378,16 +1378,28 @@ function bgmStart(name){
     while(next < ac.currentTime+1.2){
       S.chords.forEach((ch,bi)=>{                       /* 화음 굴리기 */
         (ARP[ch]||ARP['C3']).forEach((nm,k)=>{
-          bgmVoice(freq(nm), next+(bi*4+k*.5)*beat, beat*.5, .028, 'sine');
+          bgmVoice(freq(nm), next+(bi*4+k*.5)*beat, beat*.5, .04, 'sine');
         });
       });
       S.mel.forEach(([nm,b,d])=>{                       /* 멜로디 */
-        bgmVoice(freq(nm), next+b*beat, d*beat*.95, .05, 'triangle');
+        bgmVoice(freq(nm), next+b*beat, d*beat*.95, .075, 'triangle');
       });
       next += loopBeats*beat;
     }
   };
   push(); bgmTimer=setInterval(push, 300);
+}
+/* 인트로(타이틀) 화면에선 첫 터치에 배경음악을 깐다.
+   브라우저는 사용자 제스처 전엔 소리를 못 켜므로, 이미 오디오가 살아있으면
+   바로 틀고, 아니면 첫 pointerdown 한 번에 켠다. */
+function introBGM(){
+  if(!$('screenTitle') || !$('screenTitle').classList.contains('on')) return;
+  if(ac && ac.state==='running'){ bgmStart('intro'); return; }
+  const once=()=>{
+    document.removeEventListener('pointerdown', once, true);
+    if($('screenTitle').classList.contains('on')){ ensureAC(); bgmStart('intro'); }
+  };
+  document.addEventListener('pointerdown', once, true);
 }
 function sparkle(){
   const c=ensureAC(), t=c.currentTime;
@@ -2271,13 +2283,14 @@ function refreshResume(){
   };
 }
 refreshResume();
+introBGM();                     /* 인트로 화면에 들어오자마자(첫 터치) 배경음악 */
 $('mapBtn').addEventListener('click', backToMap);
 $('backBtn').addEventListener('click', ()=>{ stopRhythm(); bgmStop(); show('screenMap'); refreshMap(); });
 $('againBtn').addEventListener('click', ()=>{ helped[curPerson]=false; $('veil').classList.remove('on'); loadSong(songIdx); });
 $('restartBtn').addEventListener('click', ()=>{
   bgmStop();
   helped=Array(N_PEOPLE).fill(false); totalScore=0; clearSave();
-  buildMap(); show('screenTitle'); refreshResume();
+  buildMap(); show('screenTitle'); refreshResume(); introBGM();
 });
 /* 모드는 지도에서도, 연주 중에도 바꿀 수 있다 */
 function setMode(m){

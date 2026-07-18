@@ -1372,7 +1372,7 @@ function bgmStart(name){
   const S=BGM[name]; if(!S) return;
   bgmName=name;
   const beat=60/S.tempo, loopBeats=S.chords.length*4;
-  let next=c.currentTime+.15;
+  let next=c.currentTime+.08;     /* 첫 음이 최대한 빨리 나오게 */
   const push=()=>{
     if(bgmName!==name || !ac) return;
     while(next < ac.currentTime+1.2){
@@ -1452,6 +1452,9 @@ function markBeamed(m){
 const X_L=14, X_R=606, MID=36, STEM=32, PAD=14;
 const staff=$('staff');
 function renderSystem(){
+  /* 곡이 끝나 si 가 마지막 줄을 넘긴 상태(예: 회전·리사이즈가 늦게 발생)에서
+     불려도 systems[si] 가 undefined 라 터지지 않게 방어한다 */
+  if(!systems || !systems.length || si<0 || si>=systems.length) return;
   const sys=systems[si], isFirst=(si===0), isLast=(si===systems.length-1);
   $('plabel').textContent=`${si+1}째 줄 / 총 ${systems.length}줄`;
   $('scoreBox').classList.toggle('rhythm', isTimed());

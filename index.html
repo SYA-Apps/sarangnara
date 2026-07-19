@@ -585,7 +585,9 @@
     <h1>사랑나라</h1>
     <div class="cnt" id="mapCnt">도와준 사람 0 / 10</div>
     <div class="sp"></div>
+    <button class="tbtn" id="ordBtn" style="display:none">순서대로</button>
     <button class="tbtn mode" id="modeBtn" data-mode="practice">연습 모드</button>
+    <button class="tbtn" id="homeBtn">처음 화면</button>
     <button class="tbtn" id="fsBtn">전체화면</button>
   </div>
   <div class="scene-wrap" id="sceneWrap">
@@ -1497,6 +1499,11 @@ function setFreeMode(on){
   refreshOrderPick();
 }
 function refreshOrderPick(){
+  const ob=$('ordBtn');
+  if(ob){
+    ob.style.display = cleared ? '' : 'none';
+    ob.textContent = freeMode ? '아무나 먼저' : '순서대로';
+  }
   const st=$('ordStory'), fr=$('ordFree');
   [st,fr].forEach(b=>{ if(b) b.style.display = cleared ? '' : 'none'; });
   if(st) st.classList.toggle('on', !freeMode);
@@ -2716,6 +2723,12 @@ function refreshResume(){
 refreshResume();
 ['ordStory','ordFree'].forEach(id=>{
   const b=$(id); if(b) b.addEventListener('click', ()=>setFreeMode(b.dataset.free==='1'));
+});
+/* 지도에서도 놀이 방식을 바꾸고, 처음 화면으로 돌아갈 수 있어야 한다 */
+$('ordBtn').addEventListener('click', ()=>{ setFreeMode(!freeMode); refreshMap(); });
+$('homeBtn').addEventListener('click', ()=>{
+  bgmStop(); saveGame();                 /* 지금까지 도운 건 그대로 남는다 */
+  show('screenTitle'); refreshResume(); refreshOrderPick(); introBGM();
 });
 refreshOrderPick();
 introBGM();                     /* 인트로 화면에 들어오자마자(첫 터치) 배경음악 */

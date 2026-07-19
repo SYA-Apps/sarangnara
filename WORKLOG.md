@@ -6,7 +6,7 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전**: `sw.js` VER `sarangnara-v10`
+- **현재 버전**: `sw.js` VER `sarangnara-v11`
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
 
 ## 배포 방법 (파일 고친 뒤)
@@ -33,13 +33,14 @@ git push
 8. ✅ **iOS 사파리 더블탭 확대 방지** — 빠르게 칠 때 화면 확대되던 것,
    350ms 이내 연속 touchend 확대동작 취소 + gesturestart 등 핀치 확대 차단 (버튼은 예외)
 
-## 내일 확인/할 일
-- [ ] **폰 캐시 갱신 확인**: 사용자가 v10을 아직 못 받고 옛 버전 봄.
-      → 앱 완전히 닫았다 열기, 또는 사파리에서 새로고침 2~3번 하면 v10 반영됨.
-      (서버엔 v10 정상 배포 확인 완료)
-- [ ] (선택) **서비스워커를 network-first 로 개선** — 지금은 cache-first(stale-while-revalidate)
-      라 새 버전이 뜨려면 새로고침을 2번 해야 함. index.html/sw.js 를 network-first 로
-      바꾸면 온라인일 때 한 번에 최신본이 뜸(오프라인은 캐시 폴백). 사용자 편의 개선.
+## 2026-07-19 완료 (이어서)
+9. ✅ **서비스워커 network-first 개선(v11)** — index.html·manifest 같은 페이지는 네트워크
+   우선으로 받고, 안 되면 캐시 폴백(오프라인 유지). 폰트·아이콘은 캐시 우선 그대로.
+   → 앞으로는 **새로고침 한 번이면 최신 버전**이 뜸.
+
+## 다음 확인/할 일
+- [ ] **폰에서 v11 받기 (마지막 옛-버전 넘기기)**: 지금 폰에 깔린 건 옛 서비스워커라
+      이번 한 번만 앱 완전히 닫았다 열기 / 새로고침 2~3번 필요. 그 다음부터는 한 번이면 됨.
 - [ ] 등대지기·즐거운 나의 집 실제로 쳐보고 리듬/음 최종 확인
 - [ ] (원할 경우) 타이틀에 "화면을 톡 누르면 시작! 🎵" 안내 → 첫 터치 자연 유도
 

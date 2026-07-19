@@ -228,8 +228,14 @@
   @keyframes pPuff {0%{opacity:0;transform:translateY(2px) scale(.6)}
                     30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.15)}}
   @keyframes pBeam {0%,100%{opacity:.25}50%{opacity:.9}}
-  .trash{position:absolute;font-size:calc(15px * var(--ms));transform:translate(-50%,-50%);z-index:2;transition:.7s}
-  .trash.gone{opacity:0;transform:translate(-50%,-160%) scale(.3)}
+  /* 쓰레기 — 기울기·크기는 자리마다 달라서 인라인 transform 으로 들어온다 */
+  .trash{position:absolute;font-size:calc(15px * var(--ms));z-index:2;transition:.7s}
+  .trash.gone{opacity:0;transform:translate(-50%,-160%) scale(.3) !important}
+  /* 바닥 얼룩 — 회색 마을이 더 지저분해 보이게 */
+  .stain{position:absolute;transform:translate(-50%,-50%);border-radius:50%;z-index:1;
+    background:radial-gradient(closest-side, rgba(18,12,26,.30), rgba(18,12,26,0));
+    transition:.9s}
+  .stain.gone{opacity:0}
   .heart{position:absolute;font-size:16px;pointer-events:none;z-index:5;opacity:0}
   .heart.go{animation:hrt 1.4s ease-out forwards}
   @keyframes hrt{0%{opacity:0;transform:translate(-50%,0) scale(.4)}
@@ -885,19 +891,17 @@ function avatarSVG(A, glad){
    지도에서 그 사람이 어떤 노래인지 짐작하게 해주는 작은 그림.
    도와주기 전에는 마을 배경처럼 회색, 도와주면 색이 돌아온다.
    각 그림은 40x40 안에 그린다.                                     */
-const PROP_OF = ['plane','mail','butterfly','same','star','ripple','sprout','lighthouse','cake','home'];
-/* 사람 기준 놓을 자리 [가로, 세로]. 사람마다 직접 지정한다.
-   - 집 반대쪽에 두되, 이웃 사람의 그림과 몰리지 않게 간격을 확인했다
-   - 말풍선이 사람 머리 위에 뜨므로 너무 높이 올리지 않는다
-   - 가로로 붙는 자리(나비·젓가락)는 세로를 벌려 겹침을 피한다 */
+const PROP_OF = ['plane','mail','butterfly','twinbird','star','ripple','sprout','lighthouse','cake','home'];
+/* 사람 기준 놓을 자리 [가로, 세로].
+   아바타 바로 옆(몸 높이)에 붙여서 '이 사람의 노래'임이 한눈에 보이게 한다.
+   말풍선은 머리 위에 뜨므로 몸 높이에 두면 가리지 않는다.
+   집은 반대쪽(±11)에 있어 겹치지 않고, 이웃 사람과는 20% 떨어져 있어 안 몰린다. */
 const PROP_POS = [
-  [ 7,-10],  /* 0 종이비행기 */   [-7, -8],  /* 1 우체통 */
-  [ 8, -3],  /* 2 나비 — 말풍선 아래, 꽃 높이에서 팔랑거리게 */
-  [-8, -4],  /* 3 젓가락 */
-  [11,-11],  /* 4 별 — 말풍선 오른쪽 바깥으로 */
-  [-8, -3],  /* 5 물결 */
-  [ 8, -7],  /* 6 새싹 */         [-8,-12],  /* 7 등대 */
-  [ 8, -8],  /* 8 케이크 */       [-8,-11],  /* 9 굴뚝 연기 */
+  [ 5.5,-3], /* 0 종이비행기 */   [-5.5,-3], /* 1 우체통 */
+  [ 5.5,-3], /* 2 나비 */         [-5.5,-3], /* 3 새 두 마리 */
+  [ 5.5,-4], /* 4 별 */           [-5.5,-2], /* 5 물결 */
+  [ 5.5,-3], /* 6 새싹 */         [-5.5,-4], /* 7 등대 */
+  [ 5.5,-3], /* 8 케이크 */       [-5.5,-4], /* 9 굴뚝 연기 */
 ];
 
 function propSVG(kind, glad){
@@ -934,17 +938,20 @@ function propSVG(kind, glad){
                 <rect x="27.4" y="24" width="1.3" height="8" rx=".6" fill="${c('#4A3A52',dim2)}"/>
               </g>`;
 
-    case 'same':       /* 똑같아요 — 똑같이 생긴 젓가락 두 짝 */
-      return `<g transform="rotate(-8 20 20)">
-                <rect x="14" y="6" width="3.4" height="28" rx="1.7" fill="${c('#D9A05B',dim3)}"/>
-                <rect x="14" y="6" width="3.4" height="8"  rx="1.7" fill="${c('#B87F3E',dim2)}"/>
+    case 'twinbird':   /* 똑같아요 — 똑같이 생긴 새 두 마리 */
+      /* 자리잡기(transform 속성)와 날갯짓(CSS transform)을 다른 g 에 나눠 준다.
+         한 요소에 같이 주면 CSS 가 속성을 덮어써서 새가 엉뚱한 곳으로 간다. */
+      const bird = (x,y,sc,cls) => `<g transform="translate(${x} ${y}) scale(${sc})">
+              <g class="${cls}" style="transform-origin:0px 0px">
+                <path d="M-8 1 l-6 3.4 l6 1.6 Z" fill="${c('#3FA9D8',dim2)}"/>
+                <ellipse cx="0" cy="0" rx="8" ry="6" fill="${c('#7FD8FF',dim3)}"/>
+                <path d="M-2 -1.6 q4.6 -5 9 -1.2 q-4.6 3.8 -9 1.2 Z" fill="${c('#B7ECFF',dim)}"/>
+                <circle cx="6" cy="-4" r="4.4" fill="${c('#7FD8FF',dim3)}"/>
+                <circle cx="7.4" cy="-4.8" r="1" fill="#3A3444"/>
+                <path d="M10 -4.4 l4 1.8 l-4 1.8 Z" fill="${c('#FFD34A',dim2)}"/>
               </g>
-              <g transform="rotate(8 20 20)">
-                <rect x="22" y="6" width="3.4" height="28" rx="1.7" fill="${c('#D9A05B',dim3)}"/>
-                <rect x="22" y="6" width="3.4" height="8"  rx="1.7" fill="${c('#B87F3E',dim2)}"/>
-              </g>
-              <text x="20" y="39" font-size="7" text-anchor="middle"
-                    fill="${c('#FFD34A',dim)}">=</text>`;
+            </g>`;
+      return bird(12, 14, 1, 'fly') + bird(27, 27, 0.85, 'fly2');
 
     case 'star':       /* 작은별 — 반짝이는 별들 */
       const st = (x,y,r,cls) => `<path class="${cls}" style="transform-origin:${x}px ${y}px"
@@ -1021,23 +1028,30 @@ function houseSVG(i, glad){
 /* ======================================================================
    곡 + 사랑나라 사람들
    ====================================================================== */
-/* 진짜 동요가 실제로 불리는 속도에 맞춘다.
-   난이도는 음역과 리듬이 이미 만들고 있으니 억지로 느리게 하지 않는다.
-   퐁당퐁당(118)은 4/4로 적어서 다른 곡보다 숫자가 크다 */
-const BASE_TEMPO=[113,97,106,109,104,118,101,96,109,102];
+/* 곡별 빠르기 — 곡마다 직접 정한다(계산식을 쓰지 않는다).
 
-/* 계산식은 뒤 곡일수록 빨라지게만 하므로, 곡 성격과 크게 어긋나는 두 곳만 직접 정해준다.
-   7 등대지기(6/8): 계산값이 여 96 / 남 114 로 둘 다 느려 곡의 흐름이 느껴지지 않았다.
-     둘 다 올리되 차이(110 vs 124)를 남겨 캐릭터 성격이 계속 드러나게 한다.
-   9 즐거운 나의 집: 계산값 124 는 느리고 서정적인 원곡에 비해 행진곡처럼 빠르다 */
-const TEMPO_FIX = { 7:{girl:110, boy:124}, 9:{boy:110} };
+   기준은 '부르는 속도'가 아니라 '아이가 칠 수 있는 속도'다.
+   악보를 보고 → 건반을 찾고 → 누르기까지 걸리는 시간이 있어서,
+   부를 때 자연스러운 빠르기로 치면 아이에겐 너무 빠르다.
+   8분음표가 있는 곡은 같은 숫자라도 두 배로 빠르게 느껴지므로 더 낮췄다.
 
-/* 차분한 여자아이는 조금 느리게, 신나는 남자아이는 조금 빠르게 */
+   여자아이(차분해요·천천히)와 남자아이(신나요·빠르게)는 약 15% 차이.
+   등대지기만 6/8 이라 8분음표(♪) 기준 숫자다 — 다른 곡과 직접 비교하면 안 된다. */
+const TEMPO = [
+  { girl: 76, boy: 88 },   /* 1  비행기          8분음표 있음 */
+  { girl: 80, boy: 92 },   /* 2  우리집에 왜 왔니 */
+  { girl: 84, boy: 96 },   /* 3  나비야          16마디로 길어서 더 여유 있게 */
+  { girl: 80, boy: 92 },   /* 4  똑같아요        8분음표 있음 */
+  { girl: 88, boy: 100 },  /* 5  작은별 */
+  { girl: 92, boy: 104 },  /* 6  퐁당퐁당        8분음표 있음 */
+  { girl: 88, boy: 100 },  /* 7  봄 (비발디)     8분음표 있음 */
+  { girl: 96, boy: 108 },  /* 8  등대지기        6/8 · ♪ 기준 */
+  { girl: 92, boy: 104 },  /* 9  생일 축하합니다 */
+  { girl: 88, boy: 96 },   /* 10 즐거운 나의 집  느리고 서정적인 곡 */
+];
+
 function applyTempos(){
-  SONGS.forEach((s,i)=>{
-    const fix = TEMPO_FIX[i] && TEMPO_FIX[i][who];
-    s.tempo = fix || Math.round(BASE_TEMPO[i] * (1+i*0.012) * (who==='girl'?0.92:1.1));
-  });
+  SONGS.forEach((s,i)=>{ s.tempo = TEMPO[i][who==='girl' ? 'girl' : 'boy']; });
 }
 const SONGS=[
   /* 1 · 지친 아저씨 — 비행기 (Mary Had a Little Lamb, 1830) 도4~솔4 */
@@ -1276,8 +1290,25 @@ const PEOPLE=[
    ava:{hair:'mom', hc:'#3E2C22', skin:'#F7D6B4', top:'#8A6A88', gtop:'#FF7BA9', bot:'#4E4462', gbot:'#D4407A'}},
 ];
 PEOPLE.forEach((P,i)=>{
-  const d=[[-8,3],[7,2.5],[-5,4.5]];   /* 전부 발밑 쪽으로 — 하늘로 뜨지 않게 */
-  P.trash=d.map(([dx,dy])=>[Math.max(2,Math.min(97,P.x+dx)), Math.max(6,Math.min(96,P.y+dy))]);
+  /* 쓰레기는 자리마다 다르게 흩어져야 지저분해 보인다.
+     같은 배치가 열 번 반복되면 '놓아둔 것'처럼 보여서 얼룩덜룩한 느낌이 안 난다.
+     i 로 정해지는 값이라 새로고침해도 자리는 그대로다. */
+  const rnd=n=>{ const v=Math.sin((i*37+n*91+7)*12.9898)*43758.5453; return v-Math.floor(v); };
+  /* 쓰레기는 집 쪽으로 모은다. 힌트 그림은 반대쪽에 있어 서로 가리지 않는다.
+     너무 넓게 흩으면 언덕까지 떠다녀서 지저분한 게 아니라 어수선해 보인다. */
+  const tSide = (i%2 ? 5 : -5);
+  P.trash=Array.from({length:4},(_,k)=>({
+    x: Math.max(2, Math.min(97, P.x + tSide + (rnd(k)*12-6))),
+    y: Math.max(6, Math.min(96, P.y + 0.8 + rnd(k+11)*3.6)),
+    rot: Math.round(rnd(k+21)*70-35),          /* 기울기 */
+    sc: (0.7 + rnd(k+31)*0.45).toFixed(2),     /* 크기 */
+  }));
+  P.stain=Array.from({length:3},(_,k)=>({
+    x: Math.max(3, Math.min(96, P.x + tSide + (rnd(k+41)*14-7))),
+    y: Math.max(8, Math.min(96, P.y + 0.4 + rnd(k+51)*3.4)),
+    w: (16 + rnd(k+61)*18).toFixed(0),
+    h: (6 + rnd(k+71)*5).toFixed(0),
+  }));
   P.hx = P.x + (i%2 ? 11 : -11);
   P.hx = Math.max(6, Math.min(94, P.hx));
   P.hy = P.y - 2;
@@ -1298,7 +1329,7 @@ const TEASER=[
   {upto:9, why:'바로 앞이야. 창문이 열렸어. 익숙한 냄새가 나… 이 냄새 아는데.',
            ask:'한 사람만 더 도와주면 만날 수 있어'},
 ];
-const TRASH_ICON=['🗑️','🥤','📄','🧻'];
+const TRASH_ICON=['🗑️','🥤','📄','🧻','🥫','📦','🧃','🍌','🍬'];
 const BLOOM_SET=['🌷','🌼','🌸','🌻','🍀','⭐','💖','🎵','🦋','🌈','🌺','✨'];
 
 /* ======================================================================
@@ -2331,9 +2362,17 @@ function mapScale(){
 function buildMap(){
   mapScale();
   let s='';
-  PEOPLE.forEach((P,i)=>P.trash.forEach(([tx,ty],k)=>{
-    s+=`<div class="trash" data-p="${i}" style="left:${tx}%;top:${ty}%">${TRASH_ICON[(i+k)%4]}</div>`;
-  }));
+  PEOPLE.forEach((P,i)=>{
+    P.stain.forEach(t=>{
+      s+=`<div class="stain" data-p="${i}"
+            style="left:${t.x}%;top:${t.y}%;width:${t.w}px;height:${t.h}px"></div>`;
+    });
+    P.trash.forEach((t,k)=>{
+      s+=`<div class="trash" data-p="${i}" style="left:${t.x}%;top:${t.y}%;
+            transform:translate(-50%,-50%) rotate(${t.rot}deg) scale(${t.sc})"
+          >${TRASH_ICON[(i*3+k)%TRASH_ICON.length]}</div>`;
+    });
+  });
   $('trashes').innerHTML=s;
 
   s='';

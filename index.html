@@ -2668,6 +2668,19 @@ $('listenBtn').addEventListener('click', ()=>{
            $('hint').textContent='이제 네가 쳐볼 차례야'; }
   }, t+400);
 });
+/* 전체화면 버튼은 '브라우저 주소창을 감춰 화면을 넓게 쓰는' 기능이다.
+   그래서 아래 경우엔 눌러도 달라질 게 없어 버튼을 아예 숨긴다.
+     - 설치한 앱(Capacitor): 이미 전체화면
+     - 홈 화면에 추가한 PWA: 이미 주소창이 없음
+     - 아이폰 사파리: 전체화면 기능 자체가 없어서 눌러도 반응이 없음 */
+(function(){
+  const b=$('fsBtn'); if(!b) return;
+  const el=document.documentElement;
+  const can=!!(el.requestFullscreen || el.webkitRequestFullscreen);
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches)
+                     || navigator.standalone===true;
+  if(window.Capacitor || standalone || !can) b.style.display='none';
+})();
 $('fsBtn').addEventListener('click', async ()=>{
   try{
     if(!document.fullscreenElement){

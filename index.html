@@ -483,8 +483,8 @@
   <div class="t-title">사랑나라</div>
   <div class="t-story">
     회색으로 변해버린 사랑나라. 열 사람이 저마다의 이유로 힘들어해요.<br>
-    집을 두드려 이야기를 듣고, 피아노를 쳐서 마음을 낫게 하면<br>
-    길을 따라 무지개 색이 차올라요.<br><b>길 끝에서 기다리는 마지막 사람은… 누굴까?</b>
+    집을 두드려 이야기를 듣고, 피아노를 쳐서 마음을 낫게 하면 길을 따라 무지개 색이 차올라요.<br>
+    <b>길 끝에서 기다리는 마지막 사람은… 누굴까?</b>
   </div>
   <div class="picks">
     <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span>차분해요 · 천천히</span></button>
@@ -885,6 +885,19 @@ function houseSVG(i, glad){
    난이도는 음역과 리듬이 이미 만들고 있으니 억지로 느리게 하지 않는다.
    퐁당퐁당(118)은 4/4로 적어서 다른 곡보다 숫자가 크다 */
 const BASE_TEMPO=[113,97,106,109,104,118,101,96,109,102];
+
+/* 계산식은 뒤 곡일수록 빨라지게만 하므로, 곡 성격과 크게 어긋나는 두 곳만 직접 정해준다.
+   7 등대지기(6/8): 계산값 ♪=96 은 너무 늘어져서 곡의 흐름이 느껴지지 않는다
+   9 즐거운 나의 집: 계산값 124 는 느리고 서정적인 원곡에 비해 행진곡처럼 빠르다 */
+const TEMPO_FIX = { 7:{girl:110}, 9:{boy:110} };
+
+/* 차분한 여자아이는 조금 느리게, 신나는 남자아이는 조금 빠르게 */
+function applyTempos(){
+  SONGS.forEach((s,i)=>{
+    const fix = TEMPO_FIX[i] && TEMPO_FIX[i][who];
+    s.tempo = fix || Math.round(BASE_TEMPO[i] * (1+i*0.012) * (who==='girl'?0.92:1.1));
+  });
+}
 const SONGS=[
   /* 1 · 지친 아저씨 — 비행기 (Mary Had a Little Lamb, 1830) 도4~솔4 */
   { title:'비행기', sig:[4,4], tempo:76, perSystem:4, pickup:0,
@@ -2313,8 +2326,7 @@ document.querySelectorAll('.pick').forEach(b=>{
     document.querySelectorAll('.pick').forEach(x=>x.classList.toggle('sel', x===b));
     const btn=$('startBtn'); btn.disabled=false;
     btn.textContent = who==='girl' ? '차분하게 출발!' : '신나게 출발!';
-    /* 차분한 여자아이는 조금 느리게, 신나는 남자아이는 조금 빠르게 */
-    SONGS.forEach((s,i)=>s.tempo = Math.round(BASE_TEMPO[i] * (1+i*0.012) * (who==='girl'?0.92:1.1)));
+    applyTempos();
   });
 });
 $('startBtn').addEventListener('click', ()=>{
@@ -2330,7 +2342,7 @@ function refreshResume(){
     ensureAC(); bgmStop();
     who=sv.who||'girl'; helped=sv.helped.slice(); totalScore=sv.totalScore||0;
     mode=sv.mode||'practice';
-    SONGS.forEach((s,i)=>s.tempo = Math.round(BASE_TEMPO[i] * (1+i*0.012) * (who==='girl'?0.92:1.1)));
+    applyTempos();
     setMode(mode);
     buildMap(); show('screenMap'); refreshMap();
   };

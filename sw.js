@@ -1,6 +1,6 @@
 /* 사랑나라 서비스워커 — 오프라인 캐시
    게임을 고칠 때마다 아래 VER 숫자를 1 올리면 새 버전이 반영됩니다. */
-const VER = 'sarangnara-v13';
+const VER = 'sarangnara-v14';
 const FILES = [
   './',
   './index.html',

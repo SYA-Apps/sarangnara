@@ -37,11 +37,11 @@
   body{font-family:var(--body);background:var(--plum-deep);color:var(--cream);
     overflow:hidden;touch-action:none}
 
-  .screen{position:fixed;inset:0;display:none;flex-direction:column;
+  .screen{position:fixed;top:0;right:0;bottom:0;left:0;display:none;flex-direction:column;
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
   .screen.on{display:flex}
 
-  .rotate{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;
+  .rotate{position:fixed;top:0;right:0;bottom:0;left:0;z-index:90;display:none;flex-direction:column;
     align-items:center;justify-content:center;gap:14px;background:var(--plum-deep);text-align:center;padding:24px}
   .rotate svg{width:76px;animation:turn 2.2s ease-in-out infinite}
   @keyframes turn{0%,45%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
@@ -128,11 +128,11 @@
   /* --ms : 지도가 커지면 얼굴·글씨·집도 같이 커진다 (JS 가 넣어줌) */
   .scene-wrap{--ms:1;flex:1;position:relative;margin:0 8px 8px;border-radius:12px;overflow:hidden;
     box-shadow:0 10px 30px rgba(0,0,0,.5)}
-  .layer{position:absolute;inset:0}
-  .layer .scene-svg{position:absolute;inset:0;width:100%;height:100%}
+  .layer{position:absolute;top:0;right:0;bottom:0;left:0}
+  .layer .scene-svg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%}
   /* 길은 화면비에 상관없이 늘어난다(none) → 캐릭터의 % 좌표와 항상 정확히 맞는다.
      선 굵기는 늘어나지 않게(non-scaling-stroke) 따로 준다 */
-  .layer .road-svg{position:absolute;inset:0;width:100%;height:100%}
+  .layer .road-svg{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%}
   .road{fill:none;stroke:#EBD9AC;stroke-linecap:round;stroke-linejoin:round;
     vector-effect:non-scaling-stroke;stroke-width:calc(15px * var(--ms))}
   /* 아직 못 도운 구역 — 더 어둡고 우울하게 */
@@ -143,7 +143,7 @@
   @keyframes bloomIn{from{transform:scale(.15);opacity:.3}to{transform:scale(1);opacity:1}}
   /* 무지개는 항상 깔려 있고, 흑백 층이 위를 덮는다 →
      흑백이 걷힌 자리에서만 저절로 드러난다 */
-  .rain{position:absolute;inset:0;z-index:1;mix-blend-mode:soft-light;opacity:.5;
+  .rain{position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;mix-blend-mode:soft-light;opacity:.5;
     background:linear-gradient(90deg,#FF4D6D 0%,#FF9A3C 17%,#FFE04D 34%,#57D97E 51%,#4DB8FF 68%,#7B6CFF 85%,#D96CFF 100%)}
   .person.lock{opacity:.5;filter:grayscale(1)}
   .person.lock .tap,.person.lock .bub{display:none}
@@ -157,7 +157,7 @@
   .person .ava{display:block;width:calc(32px * var(--ms));height:calc(51px * var(--ms));
     filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
   .person:not(.done) .ava{animation:wob 2.4s ease-in-out infinite}
-  .talk{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+  .talk{position:fixed;top:0;right:0;bottom:0;left:0;z-index:40;display:none;align-items:center;justify-content:center;
     background:rgba(12,6,26,.72);padding:16px}
   .talk.on{display:flex}
   .talk-card{background:linear-gradient(180deg,#FFF8EC,#FFEFD8);color:var(--ink);border-radius:18px;
@@ -244,11 +244,11 @@
 
   .world{position:relative;height:54px;margin:1px 12px 0;border-radius:9px;overflow:hidden;
     background:linear-gradient(180deg,#33254D 0%,#251A3C 70%,#1E1533 100%);flex:0 0 auto}
-  .bloom-color{position:absolute;inset:0;width:0%;transition:width .3s ease;
+  .bloom-color{position:absolute;top:0;right:0;bottom:0;left:0;width:0%;transition:width .3s ease;
     background:linear-gradient(90deg, rgba(255,123,169,.30), rgba(255,211,74,.32));
     border-right:2px solid rgba(255,211,74,.5)}
   .ground{position:absolute;left:0;right:0;bottom:0;height:7px;background:rgba(255,255,255,.06)}
-  .blooms,.flags{position:absolute;inset:0}
+  .blooms,.flags{position:absolute;top:0;right:0;bottom:0;left:0}
   .bloom{position:absolute;bottom:7px;transform:translateX(-50%);font-size:11px;
     filter:grayscale(1) brightness(.6);opacity:.4;transition:filter .4s, opacity .4s}
   .bloom.on{filter:none;opacity:1;animation:bloomPop .5s cubic-bezier(.3,1.6,.5,1)}
@@ -329,7 +329,7 @@
   .combo span{font-size:11px;font-family:var(--body);font-weight:800;letter-spacing:.2em;color:#8A6BB8}
   .combo.bump b{animation:cb .25s ease}
   @keyframes cb{40%{transform:scale(1.22)}}
-  .count{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:18;pointer-events:none}
+  .count{position:fixed;top:0;right:0;bottom:0;left:0;display:none;align-items:center;justify-content:center;z-index:18;pointer-events:none}
   .count.on{display:flex}
   .count b{font-family:var(--display);font-size:100px;color:var(--canary);
     text-shadow:0 0 40px rgba(255,211,74,.5);animation:cnt .55s ease}
@@ -387,7 +387,7 @@
   .edge.l{left:0;background:linear-gradient(90deg,rgba(24,14,46,.5),transparent)}
   .edge.r{right:0;background:linear-gradient(270deg,rgba(24,14,46,.5),transparent)}
 
-  .veil{position:fixed;inset:0;background:rgba(24,14,46,.9);display:none;
+  .veil{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(24,14,46,.9);display:none;
     align-items:center;justify-content:center;padding:10px;z-index:30;backdrop-filter:blur(3px)}
   .veil.on{display:flex}
   .card{background:linear-gradient(165deg,#FFFDF6,#FFE9C9);color:var(--ink);border-radius:16px;
@@ -422,7 +422,7 @@
   /* ================= 엔딩: 별사탕 ================= */
   #screenEnd{background:linear-gradient(180deg,#3B2168 0%,#6B3FA0 45%,#FF9EC4 100%);
     align-items:center;justify-content:center;overflow:hidden}
-  #candies{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  #candies{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;overflow:hidden}
   .candy{position:absolute;top:-30px;font-size:14px;animation:fall linear infinite}
   @keyframes fall{to{transform:translateY(115vh) rotate(540deg)}}
   .end-box{text-align:center;z-index:2;padding:18px}

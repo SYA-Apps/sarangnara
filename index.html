@@ -246,6 +246,12 @@
     .nogap .picks > * + *{margin-left:38px}
     .nogap .t-wrap > * + *{margin-top:10px}
   }
+  /* 한 번 깬 아이에게 '이제 아무나 먼저 가도 돼'를 알려주는 띠 */
+  .free-note{font-size:11px;font-weight:800;color:#14342C;background:var(--mint,#5FE0BE);
+    border-radius:999px;padding:4px 14px;margin-top:2px}
+  @media (min-height:620px){ .free-note{font-size:16px;padding:6px 20px} }
+  .end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  .nogap .end-btns > * + *{margin-left:12px}
   .trash{position:absolute;font-size:calc(15px * var(--ms));z-index:2;transition:.7s}
   .trash.gone{opacity:0;transform:translate(-50%,-160%) scale(.3) !important}
   /* 바닥 얼룩 — 회색 마을이 더 지저분해 보이게 */
@@ -731,7 +737,10 @@
     <h1>사랑나라가 예뻐졌어!</h1>
     <p id="endMsg">열 사람 모두 웃게 만들었어.<br>엄마도 활짝 웃었어 💗<br>하늘에서 별사탕이 쏟아진다!</p>
     <small id="endScore"></small>
-    <button class="go-btn" id="restartBtn" style="font-size:20px;padding:6px 26px">처음부터 다시</button>
+    <div class="end-btns">
+      <button class="go-btn" id="endStayBtn" style="font-size:20px;padding:6px 26px">사랑나라 더 놀기</button>
+      <button class="go-btn resume" id="restartBtn" style="font-size:20px;padding:6px 26px">처음부터 다시</button>
+    </div>
   </div>
 </div>
 
@@ -1437,6 +1446,14 @@ const show=id=>document.querySelectorAll('.screen').forEach(s=>s.classList.toggl
 })();
 
 const SAVE_KEY='sarangnara.save.v1';
+/* 한 번 끝까지 깬 적이 있는지. '처음부터 다시'로 지워지면 안 되므로 따로 저장한다.
+   이 표시가 있으면 다음부터는 순서에 매이지 않고 아무 사람이나 먼저 도울 수 있다. */
+const CLEAR_KEY='sarangnara.cleared.v1';
+let cleared = (()=>{ try{ return localStorage.getItem(CLEAR_KEY)==='1'; }catch(_){ return false; } })();
+function markCleared(){
+  cleared=true;
+  try{ localStorage.setItem(CLEAR_KEY,'1'); }catch(_){}
+}
 function saveGame(){
   try{
     localStorage.setItem(SAVE_KEY, JSON.stringify({
@@ -2540,7 +2557,8 @@ function refreshMap(){
   $('screenMap').className='screen on';
   $('mapCnt').textContent=`도와준 사람 ${n} / ${N_PEOPLE}`;
   paintReveal();
-  const reveal = helped[N_PEOPLE-2];      /* 아홉 번째를 도우면 엄마가 드러난다 */
+  /* 순서대로 갈 땐 아홉 번째를 도우면, 순서가 풀렸을 땐 나머지를 다 도우면 엄마가 드러난다 */
+  const reveal = cleared ? helped.slice(0, N_PEOPLE-1).every(Boolean) : helped[N_PEOPLE-2];
   const qm=$('qmark'), wg=$('winGlow');
   if(qm) qm.style.display = reveal?'none':'';
   if(wg) wg.style.opacity = reveal?'1':'.55';
@@ -2548,7 +2566,8 @@ function refreshMap(){
     const hide = !!PEOPLE[i].secret && !reveal;
     b.classList.toggle('secret', hide);
     $('houses').children[i].classList.toggle('secret', hide);
-    b.classList.toggle('lock', i>0 && !helped[i-1] && !helped[i] && !PEOPLE[i].secret);
+    /* 한 번 깬 뒤에는 순서를 풀어 아무나 먼저 도울 수 있게 한다 (엄마는 예외) */
+    b.classList.toggle('lock', !cleared && i>0 && !helped[i-1] && !helped[i] && !PEOPLE[i].secret);
     b.classList.toggle('done', !!helped[i]);
     setSVGHTML(b.querySelector('.ava'), avatarSVG(PEOPLE[i].ava, !!helped[i]));
     b.querySelector('.bub').textContent = hide ? '???' : (helped[i]?PEOPLE[i].done:PEOPLE[i].say);
@@ -2585,6 +2604,7 @@ function backToMap(){
    엔딩: 별사탕
    ====================================================================== */
 function showEnding(){
+  markCleared();          /* 이제부터는 순서 없이 아무나 먼저 도울 수 있다 */
   bgmStart('end');
   setSVGHTML($('endHero'), heroSVG(2, who));
   $('endScore').textContent = isTimed()
@@ -2635,10 +2655,26 @@ function refreshResume(){
   };
 }
 refreshResume();
+/* 한 번 끝까지 깬 아이에게만 보이는 안내 */
+if(cleared){
+  const w=document.querySelector('.t-wrap'), st=document.querySelector('.t-story');
+  if(w && st){
+    const n=document.createElement('div');
+    n.className='free-note';
+    n.textContent='이제 아무 사람이나 먼저 도와줄 수 있어! 🌈';
+    w.insertBefore(n, st.nextSibling);
+  }
+}
 introBGM();                     /* 인트로 화면에 들어오자마자(첫 터치) 배경음악 */
 $('mapBtn').addEventListener('click', backToMap);
 $('backBtn').addEventListener('click', ()=>{ stopRhythm(); bgmStop(); show('screenMap'); refreshMap(); });
 $('againBtn').addEventListener('click', ()=>{ helped[curPerson]=false; $('veil').classList.remove('on'); loadSong(songIdx); });
+/* 끝냈다고 사라지면 아쉬우니, 지금 사랑나라 그대로 두고 계속 놀 수 있게 한다.
+   열 사람 다 도운 상태라 어떤 곡이든 다시 칠 수 있다. */
+$('endStayBtn').addEventListener('click', ()=>{
+  bgmStop(); saveGame();
+  show('screenMap'); refreshMap();
+});
 $('restartBtn').addEventListener('click', ()=>{
   bgmStop();
   helped=Array(N_PEOPLE).fill(false); totalScore=0; clearSave();

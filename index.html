@@ -82,10 +82,9 @@
     .t-sub{font-size:9.5px;letter-spacing:.28em}
     .t-title{font-size:52px}
     .t-story{font-size:10.5px;line-height:1.5;margin:2px 0 4px}
-    .ord{padding:3px 8px;border-radius:10px}
-    .ord b{font-size:12.5px}
-    .ord em{font-size:8px}
-    .ord-pick{margin-bottom:4px}
+    .ord{width:84px;padding:5px 5px;border-radius:10px}
+    .ord b{font-size:11.5px}
+    .ord em{font-size:7.5px}
     .pick{padding:4px 13px 5px;border-radius:13px}
     .pick svg{width:46px;height:56px}
     .pick b{font-size:17px}
@@ -265,22 +264,18 @@
     .nogap .picks > * + *{margin-left:38px}
     .nogap .t-wrap > * + *{margin-top:10px}
   }
-  /* 한 번 깬 아이만 고르는 놀이 방식 — 캐릭터 고르듯 좌우로 나란히 */
-  .ord-pick{display:flex;gap:10px;justify-content:center;width:100%;margin:0 0 6px}
-  .nogap .ord-pick > * + *{margin-left:10px}
-  .ord{flex:1 1 0;max-width:190px;border:2px solid rgba(255,255,255,.14);border-radius:12px;
-    background:rgba(255,255,255,.07);color:#CDB9EE;padding:5px 8px;
-    display:flex;flex-direction:column;align-items:center;gap:1px}
-  .ord b{font-family:var(--display);font-size:14px;line-height:1.05;color:var(--cream)}
-  .ord em{font-style:normal;font-size:8.5px;font-weight:700;opacity:.8}
+  /* 한 번 깬 아이만 고르는 놀이 방식 — 캐릭터 양옆에 나란히 선다 */
+  .ord{align-self:center;width:96px;border:2px solid rgba(255,255,255,.14);border-radius:12px;
+    background:rgba(255,255,255,.07);color:#CDB9EE;padding:7px 6px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+  .ord b{font-family:var(--display);font-size:13px;line-height:1.05;color:var(--cream)}
+  .ord em{font-style:normal;font-size:8px;font-weight:700;opacity:.8;line-height:1.25}
   .ord.on{background:rgba(95,224,190,.18);border-color:var(--mint,#5FE0BE)}
   .ord.on b{color:var(--mint,#5FE0BE)}
   @media (min-height:620px){
-    .ord-pick{gap:18px;margin-bottom:10px}
-    .nogap .ord-pick > * + *{margin-left:18px}
-    .ord{max-width:260px;padding:9px 14px;border-radius:16px}
-    .ord b{font-size:24px}
-    .ord em{font-size:13px}
+    .ord{width:150px;padding:12px 10px;border-radius:16px}
+    .ord b{font-size:21px}
+    .ord em{font-size:12px}
   }
   .end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
   .nogap .end-btns > * + *{margin-left:12px}
@@ -572,14 +567,12 @@
     집을 두드려 이야기를 듣고, 피아노를 쳐서 마음을 낫게 하면 길을 따라 무지개 색이 차올라요.<br>
     <b>길 끝에서 기다리는 마지막 사람은… 누굴까?</b>
   </div>
-  <!-- 한 번 끝까지 깬 아이만 고를 수 있다 -->
-  <div class="ord-pick" id="ordPick" style="display:none">
-    <button class="ord" id="ordStory" data-free="0"><b>이야기 모드</b><em>순서대로</em></button>
-    <button class="ord" id="ordFree"  data-free="1"><b>자유 모드</b><em>하고 싶은 노래 먼저</em></button>
-  </div>
   <div class="picks">
+    <!-- 모드 선택은 한 번 끝까지 깬 아이에게만 보인다. 세로가 빠듯해 캐릭터 양옆에 둔다 -->
+    <button class="ord" id="ordStory" data-free="0" style="display:none"><b>이야기 모드</b><em>순서대로</em></button>
     <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span>차분해요 · 천천히</span></button>
     <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span>신나요 · 빠르게</span></button>
+    <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>하고 싶은 노래 먼저</em></button>
   </div>
   <button class="go-btn" id="startBtn" disabled>캐릭터를 골라줘</button>
   <button class="go-btn resume" id="resumeBtn" style="display:none">이어서 하기</button>
@@ -1430,7 +1423,8 @@ let si=0, li=0, sysNotes=[], sysAll=[], segs=[], sysBeats=0, sysPlayEnd=0, barSt
 /* sysNotes = 아이가 눌러야 하는 음만 · sysAll = 쉼표까지 포함한 전체(재생 타이밍용) */
 let songIdx=0, mistakes=0, hearts=3, showSolfa=true, locked=false, collected=[], viewStart=null;
 let mode='practice';
-let R={raf:0,t0:0,beatMs:600,lastTick:-99,running:false};
+const COUNT_IN = 4;      /* 카운트다운 숫자 개수 — 모든 곡 동일 */
+let R={raf:0,t0:0,beatMs:600,leadMs:COUNT_IN*1000,lastTick:-99,running:false};
 let score=0, combo=0, maxCombo=0, tally={100:0,70:0,40:0,0:0};
 const JUDGE=[{n:'PERFECT!',w:95,p:100,c:'#FFD34A'},
              {n:'GREAT!',w:180,p:70,c:'#5FE0BE'},
@@ -1503,9 +1497,8 @@ function setFreeMode(on){
   refreshOrderPick();
 }
 function refreshOrderPick(){
-  const box=$('ordPick'); if(!box) return;
-  box.style.display = cleared ? '' : 'none';
   const st=$('ordStory'), fr=$('ordFree');
+  [st,fr].forEach(b=>{ if(b) b.style.display = cleared ? '' : 'none'; });
   if(st) st.classList.toggle('on', !freeMode);
   if(fr) fr.classList.toggle('on', freeMode);
 }
@@ -2215,7 +2208,7 @@ function press(note, el){
   if(mode==='practice'){ flash(el,'hit'); note===want?correct():wrong(); return; }
   if(!R.running){ flash(el,'hit'); return; }
   const now=performance.now();
-  const delta=now-(R.t0+(countBeats()*tickBeat()+sysNotes[li]._sysBeat)*R.beatMs);
+  const delta=now-(R.t0+R.leadMs+sysNotes[li]._sysBeat*R.beatMs);
   if(note!==want){ flash(el,'f0'); judgeIt(0,'삐끗!','#E68484'); combo=0; showCombo(); return; }
   if(delta<-EARLY_W){ flash(el,'hit'); $('hint').textContent='조금 일러! 분홍 선을 기다렸다가'; return; }
   const j=JUDGE.find(x=>Math.abs(delta)<=x.w);
@@ -2269,7 +2262,7 @@ function showCombo(){
 }
 function autoMiss(now){
   while(li<sysNotes.length){
-    const tgt=R.t0+(countBeats()*tickBeat()+sysNotes[li]._sysBeat)*R.beatMs;
+    const tgt=R.t0+R.leadMs+sysNotes[li]._sysBeat*R.beatMs;
     if(now<=tgt+MISS_W) break;
     const nh=nhOf(li); if(nh){ nh.classList.remove('now'); nh.classList.add('j0'); }
     tally[0]++; combo=0; mistakes++;
@@ -2279,6 +2272,10 @@ function autoMiss(now){
 function startRhythm(){
   stopRhythm();
   R.beatMs=60/song.tempo*1000; R.t0=performance.now();
+  /* 카운트다운은 말 그대로 카운트다운 — 어느 곡이든 4·3·2·1 을 1초씩.
+     곡마다 세는 개수나 속도가 달라지면 아이가 언제 시작할지 가늠하기 어렵다.
+     (박자에 맞춰 세면 6/8 은 2번, 3/4 는 3번만 세고 속도도 곡마다 달라진다) */
+  R.leadMs = COUNT_IN*1000;
   R.lastTick=-99; R.running=true; locked=false;
   $('hint').textContent = mode==='full'
     ? '전곡 모드! 끝까지 안 쉬고 가는 거야'
@@ -2290,9 +2287,12 @@ function stopRhythm(){ R.running=false; cancelAnimationFrame(R.raf); $('count').
 function loop(){
   if(!R.running) return;
   const now=performance.now();
-  const CB=countBeats(), TB=tickBeat(), lead=CB*TB;   /* 세는 시간 = 큰박수 × 큰박길이 */
-  const beats=(now-R.t0)/R.beatMs - lead;
-  const bi=Math.floor((beats+lead)/TB);               /* 큰 박 단위로 센다 */
+  const CB=COUNT_IN, TB=tickBeat();
+  const t=now-R.t0;                                  /* 시작 신호부터 지난 시간 */
+  const beats=(t-R.leadMs)/R.beatMs;                 /* 연주는 곡 빠르기대로 */
+  /* 세는 동안은 1초에 하나씩, 그 뒤로는 곡의 큰 박 단위로 */
+  const bi = t < R.leadMs ? Math.floor(t/1000)
+                          : CB + Math.floor(beats/TB);
   if(bi!==R.lastTick && bi>=0){
     R.lastTick=bi;
     const mb=bi-CB;
@@ -2313,8 +2313,8 @@ function loop(){
     if(wp){ wp.setAttribute('x', segs[0].x0-PAD); wp.setAttribute('width', Math.max(0,px-segs[0].x0+PAD)); }
     const nh=nhOf(li);            /* li 가 끝을 넘으면 null — 예전엔 쉼표가 잡혀서 터졌다 */
     if(nh && !nh.classList.contains('now')){
-      const tgt=(lead+sysNotes[li]._sysBeat)*R.beatMs;
-      if(now-R.t0 > tgt-EARLY_W){
+      const tgt=R.leadMs+sysNotes[li]._sysBeat*R.beatMs;
+      if(t > tgt-EARLY_W){
         nh.classList.add('now');
         const g=$('glow');
         if(g){ g.setAttribute('cx',sysNotes[li]._x); g.setAttribute('cy',sysNotes[li]._y); g.classList.add('pulse'); }

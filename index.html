@@ -1340,7 +1340,7 @@ function stopAllVoices(){ Object.keys(voices).forEach(stopVoice); }
 function click(strong){
   const c=ensureAC(), t=c.currentTime, o=c.createOscillator(), g=c.createGain();
   o.type='square'; o.frequency.value=strong?1600:1050;
-  g.gain.setValueAtTime(strong?.07:.035,t);
+  g.gain.setValueAtTime(strong ? .07 : .035, t);   /* ?. 로 붙여쓰면 헷갈린다 */
   g.gain.exponentialRampToValueAtTime(.0001,t+.045);
   o.onended=()=>{ try{o.disconnect(); g.disconnect();}catch(_){} };
   o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+.05);
@@ -1731,7 +1731,9 @@ function layout(){
   const w=kbv.clientWidth||window.innerWidth-12;
   /* 곡에 필요한 건 최대 9건반. 화면이 넓으면 칸을 늘리지 말고 건반을 키운다 */
   VISIBLE=Math.min(11, Math.max(9, Math.round(w/130)));
-  keyW=w/VISIBLE; buildKeys(); slideTo(viewStart??7, true);
+  /* viewStart??7 로 쓰면 옛 웹뷰(크롬 80 미만)에서 문법 오류가 나
+     스크립트 전체가 죽는다. 갤럭시 S8 에서 게임이 안 뜨던 원인이었다. */
+  keyW=w/VISIBLE; buildKeys(); slideTo(viewStart==null?7:viewStart, true);
 }
 let railStart=0;                    /* 지금 레일이 실제로 서 있는 자리 */
 const MARGIN=0;                     /* 0 = 화면 밖으로 나갔을 때만 따라간다 (평소엔 안 움직임) */
@@ -2430,7 +2432,8 @@ $('fsBtn').addEventListener('click', async ()=>{
   try{
     if(!document.fullscreenElement){
       await document.documentElement.requestFullscreen();
-      if(screen.orientation?.lock) await screen.orientation.lock('landscape');
+      /* ?. 는 크롬 80 미만에서 문법 오류 → 스크립트 전체가 죽는다 */
+      if(screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
     }else await document.exitFullscreen();
   }catch(err){}
 });

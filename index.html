@@ -229,6 +229,23 @@
                     30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.15)}}
   @keyframes pBeam {0%,100%{opacity:.25}50%{opacity:.9}}
   /* 쓰레기 — 기울기·크기는 자리마다 달라서 인라인 transform 으로 들어온다 */
+  /* 옛 웹뷰(크롬 84 미만)는 flex 의 gap 을 무시해 글씨·버튼이 서로 붙는다.
+     (갤럭시 S8 에서 '사랑나라'와 '도와준 사람'이 겹쳐 보이던 원인)
+     지원 여부를 실제로 재서 nogap 을 붙이고, 간격을 margin 으로 대신 준다. */
+  .nogap .map-bar > * + *{margin-left:8px}
+  .nogap .bar > * + *{margin-left:6px}
+  .nogap .picks > * + *{margin-left:22px}
+  .nogap .t-wrap > * + *{margin-top:4px}
+  @media (min-height:620px){
+    .nogap .map-bar > * + *{margin-left:16px}
+    .nogap .bar > * + *{margin-left:9px}
+    .nogap .picks > * + *{margin-left:30px}
+    .nogap .t-wrap > * + *{margin-top:8px}
+  }
+  @media (min-height:800px){
+    .nogap .picks > * + *{margin-left:38px}
+    .nogap .t-wrap > * + *{margin-top:10px}
+  }
   .trash{position:absolute;font-size:calc(15px * var(--ms));z-index:2;transition:.7s}
   .trash.gone{opacity:0;transform:translate(-50%,-160%) scale(.3) !important}
   /* 바닥 얼룩 — 회색 마을이 더 지저분해 보이게 */
@@ -371,6 +388,10 @@
     box-shadow:0 -5px 20px rgba(0,0,0,.45);touch-action:none}
   .rail{position:absolute;top:0;bottom:0;left:0;display:flex;
     transition:transform .6s cubic-bezier(.4,.9,.3,1);will-change:transform}
+  /* 사파리는 user-scalable=no 를 무시하므로, 확대는 touch-action 으로 막아야 한다.
+     manipulation = 더블탭 확대·길게 눌러 선택 같은 부가 동작을 끄고 탭만 남긴다 */
+  .wk,.bk{touch-action:manipulation;-webkit-user-select:none;user-select:none;
+    -webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   .wk{position:relative;flex:0 0 auto;height:100%;
     background:linear-gradient(180deg,#FFFFFF 0%,var(--cream) 70%,#EDE0C8 100%);
     border-right:1px solid #C9B79A;display:flex;flex-direction:column;
@@ -2060,6 +2081,14 @@ document.addEventListener('touchend', e=>{
 /* 손가락 두 개로 벌려서 확대(핀치)도 게임 중엔 막는다 */
 ['gesturestart','gesturechange','gestureend'].forEach(g=>
   document.addEventListener(g, e=>e.preventDefault(), {passive:false}));
+/* 피아노는 두 손가락이 거의 동시에 닿는 일이 흔하다. 사파리는 그걸 핀치 시작으로
+   보고 화면을 확대해 버리므로, 손가락이 둘 이상이면 기본 동작을 취소한다.
+   (연주는 pointer 이벤트로 처리하므로 건반 반응에는 영향이 없다) */
+document.addEventListener('touchstart', e=>{
+  if(e.touches.length>1) e.preventDefault();
+}, {passive:false});
+/* 더블탭 확대의 마지막 통로 */
+document.addEventListener('dblclick', e=>e.preventDefault(), {passive:false});
 $('kbL').addEventListener('click', ()=>nudge(-3));
 $('kbR').addEventListener('click', ()=>nudge(3));
 
@@ -2668,6 +2697,16 @@ $('listenBtn').addEventListener('click', ()=>{
            $('hint').textContent='이제 네가 쳐볼 차례야'; }
   }, t+400);
 });
+/* flex 의 gap 을 정말 지원하는지 재본다. 옛 웹뷰는 무시해서 간격이 사라진다. */
+(function(){
+  const t=document.createElement('div');
+  t.style.cssText='display:flex;gap:10px;position:absolute;visibility:hidden';
+  t.innerHTML='<i></i><i></i>';
+  document.body.appendChild(t);
+  const ok=t.scrollWidth>=10;
+  t.remove();
+  if(!ok) document.documentElement.classList.add('nogap');
+})();
 /* 전체화면 버튼은 '브라우저 주소창을 감춰 화면을 넓게 쓰는' 기능이다.
    그래서 아래 경우엔 눌러도 달라질 게 없어 버튼을 아예 숨긴다.
      - 설치한 앱(Capacitor): 이미 전체화면

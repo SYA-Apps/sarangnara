@@ -75,6 +75,25 @@
   .go-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #D45285}
   .go-btn:disabled{background:#4A3268;box-shadow:0 4px 0 #34204D;color:#7E6A9C}
 
+  /* 폰 가로처럼 세로가 짧은 화면 — 모드 선택칸이 늘어난 만큼 여백을 줄여
+     스크롤 없이 '출발!' 버튼까지 한 화면에 들어오게 한다. */
+  @media (max-height:460px){
+    .t-wrap{padding:3px 16px;gap:2px}
+    .t-sub{font-size:9.5px;letter-spacing:.28em}
+    .t-title{font-size:52px}
+    .t-story{font-size:10.5px;line-height:1.5;margin:2px 0 4px}
+    .ord{padding:3px 8px;border-radius:10px}
+    .ord b{font-size:12.5px}
+    .ord em{font-size:8px}
+    .ord-pick{margin-bottom:4px}
+    .pick{padding:4px 13px 5px;border-radius:13px}
+    .pick svg{width:46px;height:56px}
+    .pick b{font-size:17px}
+    .pick span{font-size:8.5px}
+    .picks{gap:16px}
+    .go-btn{font-size:22px;margin-top:5px;padding:5px 34px}
+    .go-btn.resume{font-size:17px;padding:4px 18px}
+  }
   /* 패드처럼 큰 화면에선 타이틀 전체를 키워 화면을 채운다.
      폰 가로는 높이가 390~430 안팎이라 이 규칙에 걸리지 않는다.
      두 단계로 나눈 이유: 사파리 주소창이 있으면 높이가 700 안팎까지 줄어드는데,
@@ -246,19 +265,22 @@
     .nogap .picks > * + *{margin-left:38px}
     .nogap .t-wrap > * + *{margin-top:10px}
   }
-  /* 한 번 깬 아이만 고르는 놀이 방식 */
-  .ord-pick{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin:2px 0 4px}
-  .nogap .ord-pick > * + *{margin-left:6px}
-  .ord-label{font-size:10px;font-weight:800;color:#CDB9EE}
-  .ord{font-family:var(--display);font-size:14px;line-height:1.05;padding:4px 12px;border:0;
-    border-radius:999px;background:rgba(255,255,255,.10);color:#CDB9EE;
-    display:flex;flex-direction:column;align-items:center}
-  .ord em{font-style:normal;font-family:var(--body);font-size:8px;font-weight:800;opacity:.75}
-  .ord.on{background:var(--mint,#5FE0BE);color:#14342C}
+  /* 한 번 깬 아이만 고르는 놀이 방식 — 캐릭터 고르듯 좌우로 나란히 */
+  .ord-pick{display:flex;gap:10px;justify-content:center;width:100%;margin:0 0 6px}
+  .nogap .ord-pick > * + *{margin-left:10px}
+  .ord{flex:1 1 0;max-width:190px;border:2px solid rgba(255,255,255,.14);border-radius:12px;
+    background:rgba(255,255,255,.07);color:#CDB9EE;padding:5px 8px;
+    display:flex;flex-direction:column;align-items:center;gap:1px}
+  .ord b{font-family:var(--display);font-size:14px;line-height:1.05;color:var(--cream)}
+  .ord em{font-style:normal;font-size:8.5px;font-weight:700;opacity:.8}
+  .ord.on{background:rgba(95,224,190,.18);border-color:var(--mint,#5FE0BE)}
+  .ord.on b{color:var(--mint,#5FE0BE)}
   @media (min-height:620px){
-    .ord-label{font-size:15px}
-    .ord{font-size:22px;padding:7px 20px}
-    .ord em{font-size:12px}
+    .ord-pick{gap:18px;margin-bottom:10px}
+    .nogap .ord-pick > * + *{margin-left:18px}
+    .ord{max-width:260px;padding:9px 14px;border-radius:16px}
+    .ord b{font-size:24px}
+    .ord em{font-size:13px}
   }
   .end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
   .nogap .end-btns > * + *{margin-left:12px}
@@ -552,9 +574,8 @@
   </div>
   <!-- 한 번 끝까지 깬 아이만 고를 수 있다 -->
   <div class="ord-pick" id="ordPick" style="display:none">
-    <span class="ord-label">어떻게 놀까?</span>
-    <button class="ord" id="ordStory" data-free="0">순서대로<em>이야기</em></button>
-    <button class="ord" id="ordFree"  data-free="1">아무나 먼저<em>자유</em></button>
+    <button class="ord" id="ordStory" data-free="0"><b>이야기 모드</b><em>순서대로</em></button>
+    <button class="ord" id="ordFree"  data-free="1"><b>자유 모드</b><em>하고 싶은 노래 먼저</em></button>
   </div>
   <div class="picks">
     <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span>차분해요 · 천천히</span></button>

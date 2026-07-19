@@ -6,7 +6,7 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전**: `sw.js` VER `sarangnara-v11`
+- **현재 버전**: `sw.js` VER `sarangnara-v12`
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
 
 ## 배포 방법 (파일 고친 뒤)
@@ -57,6 +57,13 @@ git push
 - ⚠️ 광고나 애널리틱스를 한 줄이라도 넣으면 아동용 심사 난이도가 급격히 올라감
 
 ### 완료
+- [x] **Capacitor 앱 셸 구성** — `C:\SYA\Sarangnara\sarangnara-app` (별도 git repo)
+      - `npm run sync` → 웹 원본을 `www/` 로 복사. **웹이 항상 원본**, 곡 고칠 땐 sarangnara-web만 고침
+      - `npm run build` → sync + cap sync / `npm run open` → 안드로이드 스튜디오
+      - 가로모드 고정, **인터넷 권한 0개**(완전 오프라인 → 데이터 안전 신고가 단순해짐)
+      - targetSdk 36, 어댑티브 런처 아이콘 생성 완료
+      - 디버그 APK 빌드 성공 확인 (JAVA_HOME = 안드로이드 스튜디오 번들 JDK)
+      - index.html: Capacitor 안에서는 서비스워커 등록 안 하도록 가드 추가 (v12)
 - [x] 개인정보처리방침 페이지 — `privacy.html` (한/영), 공개 URL:
       https://sya-apps.github.io/sarangnara/privacy.html  ← 양 스토어 제출 시 이 주소 사용
 

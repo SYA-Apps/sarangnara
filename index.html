@@ -2387,7 +2387,9 @@ buildMap();
 /* ======================================================================
    오프라인 지원 — 서비스워커 (https 로 열었을 때만 동작)
    ====================================================================== */
-if('serviceWorker' in navigator && location.protocol==='https:'){
+/* 스토어 앱(Capacitor)으로 설치된 경우엔 파일이 이미 기기 안에 있으므로 서비스워커 불필요.
+   (켜두면 앱 안에서 옛 파일이 캐시로 남는 문제가 생길 수 있음) */
+if('serviceWorker' in navigator && location.protocol==='https:' && !window.Capacitor){
   window.addEventListener('load', ()=>{
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });

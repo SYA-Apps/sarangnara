@@ -937,7 +937,7 @@ const SONGS=[
       ['C4',1],['D4',1],['E4',1],['F4',1],       /* 이 리 날 아 */
       ['G4',1],['G4',1],['G4',1],['R',1],        /* 오 너 라 (쉼) */
       ['G4',1],['E4',1],['E4',1],['E4',1],
-      ['F4',1],['D4',1],['D4',1],['D4',1],
+      ['F4',1],['D4',1],['D4',2],                /* 파 레 레(2박) */
       ['C4',1],['E4',1],['G4',1],['G4',1],
       ['E4',2],['R',2],                          /* 놀 자 (쉼) */
     ]},
@@ -1163,6 +1163,21 @@ const JUDGE=[{n:'PERFECT!',w:95,p:100,c:'#FFD34A'},
 const MISS_W=300, EARLY_W=300;
 
 const $=id=>document.getElementById(id);
+
+/* SVG 요소에 innerHTML 을 쓰면 크롬 86 미만에서는 아무 일도 일어나지 않는다.
+   (갤럭시 S8 처럼 웹뷰가 오래된 기기에서 악보·캐릭터·집이 통째로 안 보였다)
+   그래서 SVG 일 때는 직접 파싱해서 붙인다. 일반 HTML 요소는 그대로 innerHTML. */
+function setSVGHTML(el, markup){
+  if(!el) return;
+  if(!(el instanceof SVGElement)){ el.innerHTML = markup; return; }
+  const doc = new DOMParser().parseFromString(
+    '<svg xmlns="http://www.w3.org/2000/svg">'+markup+'</svg>', 'image/svg+xml');
+  while(el.firstChild) el.removeChild(el.firstChild);
+  /* importNode 는 원본을 남기고 복사만 하므로, 살아있는 childNodes 를 그대로
+     돌면 끝나지 않는다. 먼저 배열로 떠 놓고 복사해 붙인다. */
+  const kids = Array.prototype.slice.call(doc.documentElement.childNodes);
+  for(let i=0;i<kids.length;i++) el.appendChild(document.importNode(kids[i], true));
+}
 const show=id=>document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id));
 
 /* ======================================================================
@@ -1568,7 +1583,7 @@ function renderSystem(){
   staff.setAttribute('viewBox', two?'0 0 620 192':'0 0 620 96');
   if(two && si+1<systems.length)
     s+=`<g class="preview" transform="translate(0,96)">${drawPreview(systems[si+1])}</g>`;
-  staff.innerHTML=s;
+  setSVGHTML(staff, s);
   applySolfa(); paintDone(); fitKeyboard(); markStart(); moveGlow();
 }
 /* 쉼표 그리기
@@ -2054,14 +2069,14 @@ function finishSystem(){
 function showPop(e){ const p=$('pop'); p.textContent=e;
   p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
 function setHero(st, anim){
-  const h=$('hero'); h.innerHTML=heroSVG(st, who);
+  const h=$('hero'); setSVGHTML(h, heroSVG(st, who));
   if(anim){ h.classList.remove('evolve'); void h.offsetWidth; h.classList.add('evolve'); }
 }
 
 function clearSong(){
   stopRhythm();
   $('combo').classList.remove('on');
-  $('cardHero').innerHTML=heroSVG(2, who);
+  setSVGHTML($('cardHero'), heroSVG(2, who));
   const P=PEOPLE[curPerson];
   $('rTitle').textContent=`${song.title} 완성! — "${P.done}"`;
   const g=$('rGrade'), tl=$('rTally');
@@ -2192,7 +2207,7 @@ let talkIdx=0;
 function openTalk(i){
   talkIdx=i;
   const P=PEOPLE[i], ok=helped[i];
-  $('talkAva').innerHTML=avatarSVG(P.ava, ok);
+  setSVGHTML($('talkAva'), avatarSVG(P.ava, ok));
   $('talkWhere').textContent=P.where;
   $('talkName').textContent=P.name;
   $('talkWhy').textContent = ok ? P.done : P.why;
@@ -2208,7 +2223,7 @@ function openTeaser(i){
   talkIdx=i;
   const P=PEOPLE[i], n=helped.filter(Boolean).length;
   const T=TEASER.find(t=>n<=t.upto) || TEASER[TEASER.length-1];
-  $('talkAva').innerHTML=`<g style="filter:brightness(.05) saturate(0);opacity:.6">${avatarSVG(P.ava,false)}</g>`;
+  setSVGHTML($('talkAva'), `<g style="filter:brightness(.05) saturate(0);opacity:.6">${avatarSVG(P.ava,false)}</g>`);
   $('talkWhere').textContent='길 끝, 불 켜진 집';
   $('talkName').textContent='???';
   $('talkWhy').textContent=T.why;
@@ -2240,8 +2255,8 @@ function paintReveal(){
   const sc=Math.max(W/800, H/400);                 /* slice = 꽉 채우기 */
   const offX=(800*sc-W)/2/sc, offY=(400*sc-H)/2/sc;
   if(helped.every(Boolean)){                       /* 다 도우면 온 마을이 색 */
-    g.innerHTML='<rect width="800" height="400" fill="#000"/>';
-    r.innerHTML='<rect width="100" height="100" fill="#000"/>';
+    setSVGHTML(g, '<rect width="800" height="400" fill="#000"/>');
+    setSVGHTML(r, '<rect width="100" height="100" fill="#000"/>');
     return;
   }
   let a='', b='';
@@ -2252,7 +2267,7 @@ function paintReveal(){
           rx="${(0.15*W/sc).toFixed(1)}" ry="${(0.26*H/sc).toFixed(1)}" fill="url(#holeG)"/>`;
     b+=`<ellipse cx="${P.x}" cy="${cy}" rx="15" ry="26" fill="url(#holeG2)"/>`;
   });
-  g.innerHTML=a; r.innerHTML=b;
+  setSVGHTML(g, a); setSVGHTML(r, b);
 }
 function refreshMap(){
   mapScale();
@@ -2270,9 +2285,9 @@ function refreshMap(){
     $('houses').children[i].classList.toggle('secret', hide);
     b.classList.toggle('lock', i>0 && !helped[i-1] && !helped[i] && !PEOPLE[i].secret);
     b.classList.toggle('done', !!helped[i]);
-    b.querySelector('.ava').innerHTML=avatarSVG(PEOPLE[i].ava, !!helped[i]);
+    setSVGHTML(b.querySelector('.ava'), avatarSVG(PEOPLE[i].ava, !!helped[i]));
     b.querySelector('.bub').textContent = hide ? '???' : (helped[i]?PEOPLE[i].done:PEOPLE[i].say);
-    $('houses').children[i].querySelector('svg').innerHTML=houseSVG(i, !!helped[i]);
+    setSVGHTML($('houses').children[i].querySelector('svg'), houseSVG(i, !!helped[i]));
   });
   [...$('trashes').children].forEach(t=>{ if(helped[+t.dataset.p]) t.classList.add('gone'); });
 }
@@ -2300,7 +2315,7 @@ function backToMap(){
    ====================================================================== */
 function showEnding(){
   bgmStart('end');
-  $('endHero').innerHTML=heroSVG(2, who);
+  setSVGHTML($('endHero'), heroSVG(2, who));
   $('endScore').textContent = isTimed()
     ? `총점 ${totalScore.toLocaleString()}점` : '';
   let s='';
@@ -2320,7 +2335,7 @@ function showEnding(){
    버튼
    ====================================================================== */
 document.querySelectorAll('.pick').forEach(b=>{
-  b.querySelector('svg').innerHTML=heroSVG(2, b.dataset.who);
+  setSVGHTML(b.querySelector('svg'), heroSVG(2, b.dataset.who));
   b.addEventListener('click', ()=>{
     who=b.dataset.who;
     ensureAC(); bgmStart('intro');     /* 첫 터치라 여기서 소리를 켤 수 있다 */

@@ -572,7 +572,7 @@
     <button class="ord" id="ordStory" data-free="0" style="display:none"><b>이야기 모드</b><em>순서대로</em></button>
     <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span>차분해요 · 천천히</span></button>
     <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span>신나요 · 빠르게</span></button>
-    <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>하고 싶은 노래 먼저</em></button>
+    <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>마음대로</em></button>
   </div>
   <button class="go-btn" id="startBtn" disabled>캐릭터를 골라줘</button>
   <button class="go-btn resume" id="resumeBtn" style="display:none">이어서 하기</button>
@@ -1487,7 +1487,7 @@ const SAVE_KEY='sarangnara.save.v1';
 const CLEAR_KEY='sarangnara.cleared.v1';
 const ORDER_KEY='sarangnara.free.v1';
 let cleared = (()=>{ try{ return localStorage.getItem(CLEAR_KEY)==='1'; }catch(_){ return false; } })();
-/* 순서 없이 아무나 먼저 도울지. 한 번 깨야 고를 수 있고, 처음 깬 직후엔 자유가 기본이다. */
+/* 마음대로(순서 없이) 고를지 여부. 한 번 깨야 고를 수 있고, 처음 깬 직후엔 자유가 기본이다. */
 let freeMode = cleared && (()=>{ try{ return localStorage.getItem(ORDER_KEY)!=='0'; }catch(_){ return true; } })();
 function markCleared(){
   cleared=true;
@@ -1502,7 +1502,7 @@ function refreshOrderPick(){
   const ob=$('ordBtn');
   if(ob){
     ob.style.display = cleared ? '' : 'none';
-    ob.textContent = freeMode ? '아무나 먼저' : '순서대로';
+    ob.textContent = freeMode ? '마음대로' : '순서대로';
   }
   const st=$('ordStory'), fr=$('ordFree');
   [st,fr].forEach(b=>{ if(b) b.style.display = cleared ? '' : 'none'; });
@@ -2632,7 +2632,7 @@ function refreshMap(){
     const hide = !!PEOPLE[i].secret && !reveal;
     b.classList.toggle('secret', hide);
     $('houses').children[i].classList.toggle('secret', hide);
-    /* 한 번 깬 뒤에는 순서를 풀어 아무나 먼저 도울 수 있게 한다 (엄마는 예외) */
+    /* 마음대로 모드에서는 순서를 풀어 어떤 사람이든 먼저 도울 수 있다 (엄마는 예외) */
     b.classList.toggle('lock', !freeMode && i>0 && !helped[i-1] && !helped[i] && !PEOPLE[i].secret);
     b.classList.toggle('done', !!helped[i]);
     setSVGHTML(b.querySelector('.ava'), avatarSVG(PEOPLE[i].ava, !!helped[i]));
@@ -2670,7 +2670,7 @@ function backToMap(){
    엔딩: 별사탕
    ====================================================================== */
 function showEnding(){
-  markCleared();          /* 이제부터는 순서 없이 아무나 먼저 도울 수 있다 */
+  markCleared();          /* 이제부터 '마음대로' 모드를 고를 수 있다 */
   bgmStart('end');
   setSVGHTML($('endHero'), heroSVG(2, who));
   $('endScore').textContent = isTimed()

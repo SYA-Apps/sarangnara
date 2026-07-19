@@ -1474,10 +1474,22 @@ function introBGM(){
       ac.addEventListener('statechange', kick);
     }
   };
-  if(ac && ac.state==='running'){ go(); return; }
+  /* 스토어 앱에서는 자동재생 제한을 풀어놨기 때문에 켜자마자 소리가 난다.
+     웹브라우저는 규칙상 첫 터치가 있어야 소리를 낼 수 있어 그때 시작한다. */
+  let started=false;
+  const once1=()=>{ if(started) return; started=true; go(); };
+  const c=ensureAC();
+  if(c){
+    if(c.state==='running'){ once1(); return; }
+    if(c.resume){
+      try{ c.resume().then(()=>{
+        if(c.state==='running' && $('screenTitle').classList.contains('on')) once1();
+      }).catch(()=>{}); }catch(_){}
+    }
+  }
   const once=()=>{
     document.removeEventListener('pointerdown', once, true);
-    go();
+    once1();
   };
   document.addEventListener('pointerdown', once, true);
 }

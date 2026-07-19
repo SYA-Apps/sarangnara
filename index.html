@@ -57,23 +57,55 @@
     font-size:20px;padding:5px 22px;margin-top:2px}
   /* margin:auto 로 가운데 정렬 — 내용이 넘쳐도 위가 안 잘리고 스크롤됨 */
   .t-wrap{margin:auto;display:flex;flex-direction:column;align-items:center;gap:4px;
-    padding:14px 16px;width:100%}
+    padding:8px 16px;width:100%}
   .t-sub{font-size:11px;font-weight:800;letter-spacing:.4em;color:var(--canary);opacity:.8}
   .t-title{font-family:var(--display);font-size:62px;line-height:1;color:var(--canary);
     text-shadow:0 0 40px rgba(255,211,74,.35)}
-  .t-story{font-size:11.5px;color:#CDB9EE;line-height:1.8;text-align:center;margin:6px 0 12px}
+  .t-story{font-size:11.5px;color:#CDB9EE;line-height:1.75;text-align:center;margin:3px 0 8px}
   .picks{display:flex;gap:22px}
   .pick{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);
-    border-radius:16px;padding:8px 16px 10px;display:flex;flex-direction:column;align-items:center;gap:2px}
+    border-radius:16px;padding:6px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
   .pick:active{transform:translateY(2px)}
   .pick.sel{background:rgba(255,211,74,.16);border-color:var(--canary)}
   .pick svg{width:58px;height:70px}
   .pick b{font-family:var(--display);font-size:20px;color:var(--cream)}
   .pick span{font-size:9.5px;font-weight:700;color:var(--dim)}
-  .go-btn{font-family:var(--display);font-size:26px;margin-top:14px;padding:8px 40px;border:0;
+  .go-btn{font-family:var(--display);font-size:26px;margin-top:9px;padding:7px 40px;border:0;
     border-radius:14px;background:var(--rose);color:#fff;box-shadow:0 4px 0 #D45285}
   .go-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #D45285}
   .go-btn:disabled{background:#4A3268;box-shadow:0 4px 0 #34204D;color:#7E6A9C}
+
+  /* 패드처럼 큰 화면에선 타이틀 전체를 키워 화면을 채운다.
+     폰 가로는 높이가 390~430 안팎이라 이 규칙에 걸리지 않는다.
+     두 단계로 나눈 이유: 사파리 주소창이 있으면 높이가 700 안팎까지 줄어드는데,
+     거기서 제일 큰 글씨를 쓰면 내용이 넘쳐 스크롤이 생긴다. */
+  @media (min-height:620px){
+    .t-wrap{gap:8px;padding:16px 20px}
+    .t-sub{font-size:16px}
+    .t-title{font-size:92px}
+    .t-story{font-size:18px;line-height:1.9;margin:10px 0 16px}
+    .picks{gap:30px}
+    .pick{border-radius:22px;padding:12px 26px 14px;gap:5px}
+    .pick svg{width:84px;height:100px}
+    .pick b{font-size:29px}
+    .pick span{font-size:14px}
+    .go-btn{font-size:38px;margin-top:18px;padding:11px 52px;border-radius:20px}
+    .go-btn.resume{font-size:28px;padding:8px 30px;margin-top:5px}
+  }
+  /* 세로가 넉넉한 패드(아이패드 프로 가로 등)에선 한 단계 더 크게 */
+  @media (min-height:800px){
+    .t-wrap{gap:10px;padding:24px 20px}
+    .t-sub{font-size:18px}
+    .t-title{font-size:108px}
+    .t-story{font-size:20px;line-height:1.95;margin:14px 0 22px}
+    .picks{gap:38px}
+    .pick{border-radius:24px;padding:16px 30px 18px;gap:6px}
+    .pick svg{width:100px;height:120px}
+    .pick b{font-size:34px}
+    .pick span{font-size:16px}
+    .go-btn{font-size:44px;margin-top:24px;padding:14px 60px;border-radius:22px}
+    .go-btn.resume{font-size:32px;padding:9px 34px;margin-top:6px}
+  }
 
   /* ================= 사랑나라 지도 ================= */
   #screenMap{background:#1E1533}
@@ -82,10 +114,10 @@
   .map-bar .cnt{font-size:10px;font-weight:800;color:var(--dim)}
   /* 패드처럼 세로가 긴 화면에선 위쪽 글씨도 같이 키운다 (폰 가로는 390 안팎이라 안 걸림) */
   @media (min-height:620px){
-    .map-bar{height:46px;padding:7px 18px;gap:12px}
-    .map-bar h1{font-size:34px}
-    .map-bar .cnt{font-size:15px}
-    .tbtn{font-size:14px;padding:7px 14px}
+    .map-bar{height:60px;padding:10px 24px;gap:16px}
+    .map-bar h1{font-size:46px}
+    .map-bar .cnt{font-size:21px}
+    .tbtn{font-size:17px;padding:9px 18px}
     .bar{height:46px;padding:5px 16px 3px;gap:9px}
     .tag{font-size:32px}
     .tag em{font-size:13px}

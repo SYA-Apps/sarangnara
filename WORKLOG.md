@@ -6,7 +6,7 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전**: `sw.js` VER `sarangnara-v34`
+- **현재 버전**: `sw.js` VER `sarangnara-v35`
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
 
 ## 배포 방법 (파일 고친 뒤)
@@ -121,6 +121,18 @@ git push
 24. ✅ **사파리 확대 방지 보강**(v27) — 두 손가락 동시 터치를 핀치로 오해하던 것 차단
 25. ✅ **옛 웹뷰 글씨 겹침**(v27) — flex `gap` 미지원 감지해 margin 으로 대체
 
+## 2026-07-20 완료 (이어서)
+26. ✅ **갤럭시 S8 실측 점검** — 디버그 APK 새로 빌드·설치 후 `walk-phone.mjs` 로
+    타이틀 → 지도 → 대화 → 연주까지 실제로 눌러가며 확인. **자바스크립트 오류 0건**,
+    악보 65개 요소 정상 그려짐, 화면 밖으로 새는 요소 없음. 옛 웹뷰 문제는 다 잡힌 상태.
+27. ✅ **악보 카드가 안내 문구를 덮던 것**(v35) — 세로가 빠듯한 가로 화면에서
+    악보 카드(114px)가 배정된 자리(96px)보다 커져 아래 "빛나는 음표를 보고…" 를 9px 덮었다.
+    **S8뿐 아니라 아이폰 가로(844x390)도 8px 겹쳤음.**
+    - 원인: `svg.staff{max-height:100%}` 는 부모 높이가 auto 라 안 먹는다.
+    - 고침: `fitStaff()` 가 '남은 높이'와 '제 비율 높이' 중 작은 쪽을 직접 넣는다.
+      비율은 viewBox 에서 읽으므로 **두 줄짜리 악보(620x192)도 맞는다**.
+    - 넓은 화면(패드)은 비율 쪽이 작아 전과 똑같음 — 카드가 통째로 늘어나지 않는다.
+
 ## 다음 확인/할 일
 - [ ] **Google Play 개발자 계정 승인** 나면 바로 업로드 (AAB·아이콘·스크린샷·문안 준비 완료)
 - [ ] 테스터 12명 명단 모으기 → 14일 연속 테스트. **가장 오래 걸리는 단계**
@@ -135,3 +147,9 @@ git push
 - 폰트 재-subset 스크립트/방법은 세션 스크래치패드에 있었음(원본 구글폰트에서 재생성).
 - 악보를 이미지로 확인시켜줄 때: 게임의 drawNote/drawBeams 로직을 그대로 옮긴
   Node 스크립트로 SVG 생성해서 보여줌.
+- 점검 도구(`sarangnara-app/`): `inspect-phone.mjs`(폰 웹뷰 상태 한 번 훑기),
+  `walk-phone.mjs`(폰에서 타이틀→지도→대화→연주까지 눌러가며 화면마다 점검),
+  `shot-play.mjs`(패드·아이폰·S8 크기로 **모든 곡 × 연습/전체 모드** 연주 화면 레이아웃 검사).
+  폰에 붙는 법: 디버그 APK 설치 → `adb shell pidof com.sya.sarangnara` →
+  `adb forward tcp:9222 localabstract:webview_devtools_remote_<pid>`.
+  **화면이 꺼져 있으면 innerWidth 가 0 이라 측정이 다 0 으로 나온다** — 깨워 놓고 잴 것.

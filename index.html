@@ -352,7 +352,8 @@
   .score{width:100%;background:linear-gradient(180deg,#FFFDF6,#FFF3D9);border-radius:10px;
     box-shadow:0 8px 22px rgba(0,0,0,.42), 0 0 0 2px rgba(255,211,74,.22);padding:2px 4px;position:relative}
   .plabel{position:absolute;top:3px;right:12px;font-family:var(--display);font-size:12px;color:#8A6BB8;z-index:2}
-  svg.staff{display:block;width:100%;height:auto;max-height:100%}
+  /* 높이는 fitStaff() 가 잰다 — max-height:100% 는 부모 높이가 auto 라 안 먹는다 */
+  svg.staff{display:block;width:100%;height:auto}
   .stafflines{stroke:#3A2A55;stroke-width:1}
   .ledger{stroke:#241436;stroke-width:1.3}
   .barline{stroke:#3A2A55;stroke-width:1.2}
@@ -1894,6 +1895,7 @@ function renderSystem(){
   if(two && si+1<systems.length)
     s+=`<g class="preview" transform="translate(0,96)">${drawPreview(systems[si+1])}</g>`;
   setSVGHTML(staff, s);
+  fitStaff();                          /* viewBox 가 바뀌었으니 카드 높이도 다시 잰다 */
   applySolfa(); paintDone(); fitKeyboard(); markStart(); moveGlow();
 }
 /* 쉼표 그리기
@@ -2044,6 +2046,21 @@ function layout(){
   /* viewStart??7 로 쓰면 옛 웹뷰(크롬 80 미만)에서 문법 오류가 나
      스크립트 전체가 죽는다. 갤럭시 S8 에서 게임이 안 뜨던 원인이었다. */
   keyW=w/VISIBLE; buildKeys(); slideTo(viewStart==null?7:viewStart, true);
+  fitStaff();
+}
+/* 악보 카드 높이 맞추기.
+   svg 는 제 비율대로 커지려 해서, 세로가 빠듯한 폰(S8 가로 360, 아이폰 390)에서는
+   카드가 아래 안내 문구를 덮어버렸다. CSS 의 max-height:100% 는 부모 높이가 auto 라 안 먹으므로
+   '남은 높이'와 '제 비율 높이' 중 작은 쪽을 직접 넣어준다. 넓은 화면에선 비율 쪽이 작아
+   전과 똑같이 악보에 딱 맞는 카드가 된다.
+   비율은 viewBox 에서 읽는다 — 두 줄짜리 곡은 renderSystem 이 620x192 로 바꾼다.     */
+function fitStaff(){
+  const st=$('staff'), wrap=st.parentNode.parentNode;   /* .score → .score-wrap */
+  const avail=wrap.clientHeight-8;                      /* .score-wrap 안쪽 여백 + 카드 padding */
+  if(avail<=0) return;
+  const vb=(st.getAttribute('viewBox')||'0 0 620 96').split(/\s+/);
+  const natural=st.clientWidth*(+vb[3])/(+vb[2]);
+  st.style.height=Math.round(Math.min(avail, natural))+'px';
 }
 let railStart=0;                    /* 지금 레일이 실제로 서 있는 자리 */
 const MARGIN=0;                     /* 0 = 화면 밖으로 나갔을 때만 따라간다 (평소엔 안 움직임) */

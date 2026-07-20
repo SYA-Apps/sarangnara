@@ -6,7 +6,7 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전**: `sw.js` VER `sarangnara-v36`
+- **현재 버전**: `sw.js` VER `sarangnara-v37`
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
 
 ## 배포 방법 (파일 고친 뒤)
@@ -143,6 +143,19 @@ git push
     **10곡 중 6곡이 완벽하게 쳐도 S 를 못 받는 상태였다.**
     채점 분모를 `playCount`(칠 음만) 로 분리 — 진행바·전리품 눈금은 `flatCount` 그대로라 안 흔들린다.
     → 자동 연주로 10곡 전부 S · 100% 확인.
+
+30. ✅ **앱 안 개인정보처리방침 + 오픈소스 라이선스**(v37) — **정책 위반 상태였다.**
+    구글: "All apps must post a privacy policy link in the designated field within Play Console,
+    **and a privacy policy link or text within the app itself**." 스토어 등록란만으론 부족한데,
+    `sync-web.mjs` 복사 목록에 `privacy.html` 이 없어 앱 안엔 아예 들어가 있지 않았다.
+    - `privacy.html` 을 앱에 동봉 + `licenses.html` 새로 작성
+    - 타이틀 맨 아래 작은 회색 글씨로 `개인정보처리방침 · 만든 것들` 한 줄
+    - 폰트 둘 다 **SIL OFL 1.1** 이라 저작권 고지+전문 포함이 의무:
+      Gaegu(Copyright 2018 The Gaegu Project Authors), Gothic A1(Copyright HanYang I&C Co., Ltd.)
+      Capacitor(MIT)·AndroidX(Apache 2.0) 전문도 함께 실었다.
+    - **인터넷 권한 0개는 그대로** — 앱에 함께 담긴 로컬 파일이라 바깥으로 나가지 않는다
+    - 두 페이지에 `← 사랑나라로 돌아가기` 링크 (앱에선 나올 방법이 없으면 갇힌다)
+    - `check-legal.mjs` 로 헤드리스 검증 + 실제 S8 웹뷰에서도 열림·복귀 확인
 
 ## 다음 확인/할 일
 - [ ] **Google Play 개발자 계정 승인** 나면 바로 업로드 (AAB·아이콘·스크린샷·문안 준비 완료)

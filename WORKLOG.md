@@ -6,7 +6,9 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전**: `sw.js` VER `sarangnara-v37`
+- **현재 버전**: `sw.js` VER `sarangnara-v38`
+- **연락처는 전부 개발자 계정 주소로 통일** — 개인 메일은 공개된 곳 어디에도 넣지 않는다.
+  (주소 자체는 로컬 메모리에. 이 파일은 공개 저장소라 안 적는다)
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
 
 ## 배포 방법 (파일 고친 뒤)

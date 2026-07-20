@@ -2585,7 +2585,10 @@ function buildMap(){
   const hit=e=>{
     const i=+e.currentTarget.dataset.i;
     if(helped[i]){ openTalk(i); return; }
-    if(i>0 && !helped[i-1]){
+    /* 잠겼는지 판단하는 규칙은 refreshMap 의 .lock 과 **반드시 같아야 한다.**
+       예전엔 여기만 freeMode 를 안 봐서, 마음대로 모드인데 자물쇠는 사라지고
+       누르면 흔들리며 막혔다. 아이는 왜 안 되는지 알 길이 없었다. */
+    if(!freeMode && i>0 && !helped[i-1]){
       if(PEOPLE[i].secret){ openTeaser(i); return; }
       const p=$('people').children[i];
       p.classList.add('shake'); tone(180,.12,.08);

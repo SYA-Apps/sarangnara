@@ -413,9 +413,12 @@
     text-shadow:0 0 40px rgba(255,211,74,.5);animation:cnt .55s ease}
   @keyframes cnt{0%{transform:scale(1.7);opacity:0}30%{opacity:1}100%{transform:scale(.9);opacity:.2}}
 
-  /* 심사자와 부모 눈에는 보이되 아이 눈에는 안 띄게 — 작고 흐리게, 맨 아래에 */
-  .legal{margin-top:7px;font-size:10px;color:#8A7BA8;letter-spacing:.02em}
-  .legal a{color:#8A7BA8;text-decoration:none;padding:3px 2px}
+  /* 심사자와 부모 눈에는 보이되 아이 눈에는 안 띄게 — 작고 흐리게.
+     **'출발!' 버튼 바로 밑에 두면 안 된다** — 아이가 버튼을 누르다 잘못 눌러
+     엉뚱한 페이지로 나가버린다. 화면 오른쪽 아래 구석으로 완전히 빼둔다.
+     (inset 은 크롬 87+ 라 옛 웹뷰에서 무시된다. right/bottom 을 따로 쓴다) */
+  .legal{position:absolute;right:10px;bottom:6px;font-size:10px;color:#8A7BA8;letter-spacing:.02em}
+  .legal a{color:#8A7BA8;text-decoration:none;padding:4px 3px}
 
   .hint{text-align:center;font-family:var(--display);font-size:19px;color:#CDB9EE;
     padding:1px 12px 2px;min-height:24px;flex:0 0 auto;line-height:1.15}
@@ -424,6 +427,21 @@
   .kbv{position:relative;flex:0 0 auto;height:40vh;min-height:124px;max-height:320px;
     margin:0 6px 4px;border-radius:8px 8px 12px 12px;overflow:hidden;background:#241436;
     box-shadow:0 -5px 20px rgba(0,0,0,.45);touch-action:none}
+
+  /* 세로가 빠듯한 폰 가로(S8 360, 아이폰 390).
+     악보는 620:96 비율이라 세로가 모자라면 **가로까지 같이 줄어든다**(meet).
+     그러면 음표가 작아져 아이가 보기 어렵다 — 악보가 폭을 꽉 채우는 게 우선이다.
+     그래서 이 크기에서만 안내 문구와 건반에서 20px 남짓을 걷어 악보에 준다.
+     건반은 36vh 로도 손가락에는 충분하고, 안내 문구는 한 줄이면 된다.
+     **위 .hint / .kbv 규칙보다 뒤에 있어야 한다** — 미디어쿼리는 우선순위를
+     올려주지 않아서, 앞에 두면 아래의 원본 규칙에 그대로 덮인다. */
+  @media (max-height:430px){
+    .score-wrap{padding:1px 8px}
+    .hint{font-size:15px;min-height:15px;padding:0 10px;line-height:1.05}
+    .hint b{font-size:20px}
+    .kbv{height:36vh}
+  }
+
   .rail{position:absolute;top:0;bottom:0;left:0;display:flex;
     transition:transform .6s cubic-bezier(.4,.9,.3,1);will-change:transform}
   /* 사파리는 user-scalable=no 를 무시하므로, 확대는 touch-action 으로 막아야 한다.

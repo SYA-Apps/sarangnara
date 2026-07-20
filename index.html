@@ -1420,7 +1420,10 @@ const BLOOM_SET=['🌷','🌼','🌸','🌻','🍀','⭐','💖','🎵','🦋','
    ====================================================================== */
 const N_PEOPLE=PEOPLE.length;
 let who='girl', helped=Array(N_PEOPLE).fill(false), curPerson=0, totalScore=0;
-let song, measures, systems, flatCount;
+/* flatCount = 쉼표까지 포함한 전체(진행바·전리품 눈금용)
+   playCount = 아이가 실제로 누르는 음만(채점 분모). 쉼표를 분모에 넣으면
+               한 음도 안 틀려도 100% 가 안 나온다 — 쉼표는 칠 수가 없으니까. */
+let song, measures, systems, flatCount, playCount;
 let si=0, li=0, sysNotes=[], sysAll=[], segs=[], sysBeats=0, sysPlayEnd=0, barStarts=new Set();
 /* sysPlayEnd = 마지막 음이 끝나는 박. 줄이 쉼표로 끝나면 sysBeats 보다 작다 */
 /* sysNotes = 아이가 눌러야 하는 음만 · sysAll = 쉼표까지 포함한 전체(재생 타이밍용) */
@@ -2425,7 +2428,7 @@ function clearSong(){
   $('rTitle').textContent=`${song.title} 완성! — "${P.done}"`;
   const g=$('rGrade'), tl=$('rTally');
   if(isTimed()){
-    const acc=(tally[100]*100+tally[70]*70+tally[40]*40)/(flatCount*100);
+    const acc=(tally[100]*100+tally[70]*70+tally[40]*40)/(playCount*100);
     const grade=acc>=.95?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
     g.innerHTML=`<small>등급</small>${grade}`; g.style.fontSize='';
     g.style.color=grade==='S'?'#E0A800':grade==='A'?'#2FB894':'#8A6BB8';
@@ -2461,6 +2464,7 @@ function loadSong(idx){
   measures=buildMeasures(song); measures.forEach(markBeamed);
   systems=buildSystems(song, measures);
   flatCount=song.notes.length;
+  playCount=song.notes.filter(n=>!isRest(n[0])).length || 1;
   si=0; li=0; mistakes=0; hearts=3; locked=false; collected=[]; viewStart=null;
   score=0; combo=0; maxCombo=0; tally={100:0,70:0,40:0,0:0}; holdOk=0; holdTot=0;
 

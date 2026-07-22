@@ -526,18 +526,13 @@
     white-space:pre-line;box-shadow:0 8px 26px rgba(0,0,0,.4);pointer-events:none;z-index:60;
     opacity:0;transition:opacity .25s ease,transform .25s ease}
   .toast.on{opacity:1;transform:translate(-50%,0)}
-  .share-btn{background:#5FE0BE;box-shadow:0 4px 0 #38B598}
-  .share-btn:active{box-shadow:0 1px 0 #38B598}
-  /* 타이틀: 출발 버튼과 공유 버튼을 나란히. gap 대신 margin(옛 웹뷰). */
-  .t-go{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:9px}
-  .t-go > * + *{margin-left:14px}
-  .t-go .go-btn{margin-top:0}
-  /* 출발이 주 버튼, 공유는 옆에 두는 작은 보조 버튼(한 줄). */
-  .t-share{font-size:15px;line-height:1.1;padding:7px 18px}
-  /* 큰 화면에서도 출발 버튼보다 훨씬 작게 유지한다.
-     이 규칙들을 .t-share 기본 정의 '뒤'에 둬야 미디어쿼리가 이긴다(같은 specificity라 소스 순서). */
-  @media (min-height:620px){ .t-share{font-size:19px;padding:9px 22px} .t-go{margin-top:18px} }
-  @media (min-height:800px){ .t-share{font-size:22px;padding:10px 26px} .t-go{margin-top:24px} }
+  /* 공유는 부차적 동작이라 버튼이 아닌 작은 글자 링크로(출발·엔딩 버튼 아래 가운데).
+     손글씨체 + 부드러운 민트로 '동작'임을 은근히 알린다. */
+  .share-link{font-family:var(--display);font-size:15px;color:#7FE7CB;cursor:pointer;
+    text-decoration:none;white-space:nowrap;padding:5px 12px;margin-top:2px}
+  .share-link:active{opacity:.55}
+  @media (min-height:620px){ .share-link{font-size:18px;padding:6px 14px} }
+  @media (min-height:800px){ .share-link{font-size:20px;padding:7px 16px} }
   @keyframes loot{0%{opacity:0;transform:translateX(-50%) scale(.4)}
     35%{opacity:1;transform:translateX(-50%) scale(1.15)}
     100%{opacity:0;transform:translateX(-50%) translateY(-40px) scale(1)}}
@@ -616,13 +611,10 @@
     <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span>신나요 · 빠르게</span></button>
     <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>마음대로</em></button>
   </div>
-  <!-- 출발 버튼 옆에 큰 공유 버튼. 캐릭터를 안 골라도(출발이 비활성이어도) 공유는 늘 된다.
-       옛 웹뷰는 flex gap 을 못 써서 버튼 사이 간격은 margin 으로 준다(.t-go > *+*). -->
-  <div class="t-go">
-    <button class="go-btn" id="startBtn" disabled>캐릭터를 골라줘</button>
-    <button class="go-btn share-btn t-share" id="shareTop">🔗 친구에게 알려주기</button>
-  </div>
+  <button class="go-btn" id="startBtn" disabled>캐릭터를 골라줘</button>
   <button class="go-btn resume" id="resumeBtn" style="display:none">이어서 하기</button>
+  <!-- 공유는 부차적 동작이라 버튼 아닌 작은 글자 링크로 출발 아래에. 캐릭터를 안 골라도 늘 눌린다. -->
+  <a class="share-link" id="shareTop" role="button" tabindex="0">🔗 친구에게 알려주기</a>
   <!-- 구글플레이는 앱 안에도 개인정보처리방침 링크를 두라고 요구한다.
        둘 다 앱에 함께 담긴 파일이라 바깥으로 나가는 링크가 아니다. -->
   <div class="legal">
@@ -825,8 +817,8 @@
     <div class="end-btns">
       <button class="go-btn" id="endStayBtn" style="font-size:20px;padding:6px 26px">사랑나라 더 놀기</button>
       <button class="go-btn resume" id="restartBtn" style="font-size:20px;padding:6px 26px">처음부터 다시</button>
-      <button class="go-btn share-btn" id="endShareBtn" style="font-size:18px;padding:6px 26px">친구에게 이 게임 알려주기</button>
     </div>
+    <a class="share-link" id="endShareBtn" role="button" tabindex="0">🔗 친구에게 이 게임 알려주기</a>
   </div>
 </div>
 

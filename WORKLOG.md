@@ -6,7 +6,7 @@
 - **저장소**: https://github.com/SYA-Apps/sarangnara (public)
 - **게임 주소**: https://sya-apps.github.io/sarangnara/
 - **로컬 폴더**: `C:\SYA\Sarangnara\sarangnara-web`
-- **현재 버전(웹)**: `sw.js` VER `sarangnara-v45`
+- **현재 버전(웹)**: `sw.js` VER `sarangnara-v46`
 - **연락처는 전부 개발자 계정 주소로 통일** — 개인 메일은 공개된 곳 어디에도 넣지 않는다.
   (주소 자체는 로컬 메모리에. 이 파일은 공개 저장소라 안 적는다)
 - 커밋 작성자: `SYA <sya@noreply.invalid>` (reading-log 등 다른 프로젝트와 동일)
@@ -189,7 +189,15 @@ git push
 34. ✅ **이 앱 공유하기**(v42~v45) — 공유 3곳(다 `shareApp` 하나로): 타이틀·엔딩·지도 상단바.
     타이틀·엔딩은 **작은 민트 글자 링크**(`.share-link`, 손글씨체, `#shareTop`/`#endShareBtn`),
     지도는 알약(`#shareMap`, `.tbtn`, 모드 버튼 왼쪽). 크기·형태 변천: v43 큰 버튼 → v44 작은 버튼 →
-    v45 글자 링크(부차 동작이라 큰 컬러 버튼과 안 겹치게). 세 요소 다 `<a role=button>`/`.tbtn`. 누르면 OS 공유 시트(`navigator.share`) → 없으면 클립보드 복사(execCommand
+    v45 글자 링크(부차 동작이라 큰 컬러 버튼과 안 겹치게). 세 요소 다 `<a role=button>`/`.tbtn`.
+35. ✅ **링크 공유 카드 이미지(OG)**(v46) — 카톡 등에서 웹 링크를 공유하면 썸네일 없이 기본 문구만
+    뜨던 것 수정. `index.html` head 에 Open Graph/Twitter 메타태그 + **`og-image.png`(1200×630)** 추가.
+    이미지는 `sarangnara-app/make-og.mjs` 로 생성(스토어 피처그래픽과 같은 결, 아이콘+제목+소개+건반).
+    - og:image 는 **절대 URL**(`https://sya-apps.github.io/sarangnara/og-image.png`) 이어야 크롤러가 읽는다.
+    - OG 태그·이미지는 크롤러만 가져가고 앱은 안 부르므로 **'외부 요청 0건' 유지**. og-image 는 app `www/` 미포함.
+    - ⚠️ 카톡은 OG 를 세게 캐시한다. 새 카드가 바로 안 뜨면 카카오 캐시 초기화(`developers.kakao.com/tool/clear/og`)
+      로 재수집하거나 하루쯤 기다린다. 공유 문구의 첫 링크(안드로이드=Play)는 출시 전엔 카드가 없어,
+      지금은 웹 링크 카드가 주로 뜬다. 누르면 OS 공유 시트(`navigator.share`) → 없으면 클립보드 복사(execCommand
     폴백, 옛 웹뷰까지) → 그것도 안 되면 링크 토스트. **인터넷 권한 0개 유지**(OS 에 넘길 뿐 앱이
     직접 네트워크 안 씀). 받는 사람 기기에 맞게 **두 링크로 나눠** 보냄:
     안드로이드=Play 스토어(`shareApp` 의 `SHARE_URL_AOS`), 아이폰·기타=웹(`SHARE_URL_WEB`).

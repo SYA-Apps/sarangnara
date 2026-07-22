@@ -519,6 +519,16 @@
   .pop{position:fixed;left:50%;top:24%;transform:translateX(-50%);font-size:40px;
     pointer-events:none;z-index:25;opacity:0}
   .pop.go{animation:loot 1s ease forwards}
+  /* 링크 복사 안내 등 짧은 문구 토스트 (별사탕용 .pop 과 달리 문장을 담는다) */
+  .toast{position:fixed;left:50%;bottom:14%;transform:translate(-50%,12px);
+    max-width:80%;padding:11px 20px;border-radius:14px;background:rgba(24,14,46,.94);
+    color:#fff;font-family:var(--display);font-size:17px;line-height:1.4;text-align:center;
+    white-space:pre-line;box-shadow:0 8px 26px rgba(0,0,0,.4);pointer-events:none;z-index:60;
+    opacity:0;transition:opacity .25s ease,transform .25s ease}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  .share-btn{background:#5FE0BE;box-shadow:0 4px 0 #38B598}
+  .share-btn:active{box-shadow:0 1px 0 #38B598}
+  #shareTop{cursor:pointer}
   @keyframes loot{0%{opacity:0;transform:translateX(-50%) scale(.4)}
     35%{opacity:1;transform:translateX(-50%) scale(1.15)}
     100%{opacity:0;transform:translateX(-50%) translateY(-40px) scale(1)}}
@@ -602,7 +612,7 @@
   <!-- 구글플레이는 앱 안에도 개인정보처리방침 링크를 두라고 요구한다.
        둘 다 앱에 함께 담긴 파일이라 바깥으로 나가는 링크가 아니다. -->
   <div class="legal">
-    <a href="privacy.html">개인정보처리방침</a> · <a href="licenses.html">만든 것들</a>
+    <a href="privacy.html">개인정보처리방침</a> · <a href="licenses.html">만든 것들</a> · <a id="shareTop" role="button" tabindex="0">친구에게 알려주기</a>
   </div>
   </div>
 </div>
@@ -800,12 +810,14 @@
     <div class="end-btns">
       <button class="go-btn" id="endStayBtn" style="font-size:20px;padding:6px 26px">사랑나라 더 놀기</button>
       <button class="go-btn resume" id="restartBtn" style="font-size:20px;padding:6px 26px">처음부터 다시</button>
+      <button class="go-btn share-btn" id="endShareBtn" style="font-size:18px;padding:6px 26px">친구에게 이 게임 알려주기</button>
     </div>
   </div>
 </div>
 
 <div class="count" id="count"><b>3</b></div>
 <div class="pop" id="pop"></div>
+<div class="toast" id="toast"></div>
 
 <div class="veil" id="veil">
   <div class="card">
@@ -2442,6 +2454,65 @@ function finishSystem(){
 }
 function showPop(e){ const p=$('pop'); p.textContent=e;
   p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+
+/* ---------- 이 앱 공유하기 ----------
+   인터넷 권한 없이도 된다: OS 공유 시트에 넘기거나(navigator.share),
+   안 되면 링크를 클립보드에 복사할 뿐 앱이 직접 네트워크를 쓰지 않는다.
+
+   받는 사람 기기에 맞게 둘로 나눠 보낸다:
+   - 안드로이드는 Play 스토어 앱  (⚠️ 앱이 '공개'로 출시돼야 열린다. 비공개 테스트 중엔 404)
+   - 아이폰·그 밖은 웹 버전       (언제나 열린다) */
+var SHARE_URL_AOS = 'https://play.google.com/store/apps/details?id=com.sya.sarangnara';
+var SHARE_URL_WEB = 'https://sya-apps.github.io/sarangnara/';
+var SHARE_TEXT = '사랑나라 🎹 피아노를 쳐서 회색이 된 마을에 색을 되돌리는 아이 게임이에요.';
+function shareBody(){
+  return SHARE_TEXT + '\n\n'
+    + '📱 안드로이드(앱): ' + SHARE_URL_AOS + '\n'
+    + '🍎 아이폰·기타(웹): ' + SHARE_URL_WEB;
+}
+
+var toastTimer = 0;
+function toast(msg){
+  var t = $('toast'); if(!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2600);
+}
+
+/* 옛 웹뷰(클립보드 API 없음)까지 되도록 execCommand 폴백을 둔다. */
+function copyText(txt){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='0'; ta.style.left='0'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select(); ta.setSelectionRange(0, txt.length);
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
+
+function shareApp(){
+  var text = shareBody();
+  /* 1) OS 공유 시트 — 취소(AbortError)나 실패는 조용히 넘긴다.
+        catch 를 반드시 달 것: 안 그러면 전역 unhandledrejection 이 오류바를 띄운다.
+        url 은 일부러 안 넘긴다 — 두 링크를 text 에 나눠 담았는데 url 까지 주면
+        공유 대상 앱이 링크 하나만 강조하거나 중복시킬 수 있다. */
+  if(navigator.share){
+    try{
+      var p = navigator.share({ title:'사랑나라', text:text });
+      if(p && p.catch) p.catch(function(){});
+      return;
+    }catch(e){}
+  }
+  /* 2) 클립보드 복사 */
+  if(copyText(text)){ toast('두 링크를 복사했어요!\n안드로이드는 앱, 아이폰은 웹으로 보내줘 💌'); return; }
+  /* 3) 그래도 안 되면 링크를 보여준다 */
+  toast(text);
+}
 function setHero(st, anim){
   const h=$('hero'); setSVGHTML(h, heroSVG(st, who));
   if(anim){ h.classList.remove('evolve'); void h.offsetWidth; h.classList.add('evolve'); }
@@ -2797,6 +2868,13 @@ $('restartBtn').addEventListener('click', ()=>{
   helped=Array(N_PEOPLE).fill(false); totalScore=0; clearSave();
   buildMap(); show('screenTitle'); refreshResume(); introBGM();
 });
+/* 이 게임 공유하기 — 타이틀 하단 링크와 엔딩 버튼 둘 다 같은 동작 */
+$('endShareBtn').addEventListener('click', shareApp);
+var _shareTop=$('shareTop');
+if(_shareTop){
+  _shareTop.addEventListener('click', shareApp);
+  _shareTop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); shareApp(); } });
+}
 /* 모드는 지도에서도, 연주 중에도 바꿀 수 있다 */
 function setMode(m){
   mode=m;

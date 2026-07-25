@@ -365,7 +365,9 @@
     35%{opacity:1;transform:translateX(-50%) scale(1.5)}
     100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(1.1)}}
 
-  .score-wrap{flex:1 1 auto;display:flex;align-items:center;padding:2px 10px;min-height:0}
+  /* min-height 로 최소 높이를 지켜 악보 칸이 0 으로 눌리지 않게 한다(폰 가로에서 악보가
+     통째로 안 보이던 버그). 짧은 화면에선 아래 미디어쿼리가 건반을 조금 낮춰 이 자리를 낸다. */
+  .score-wrap{flex:1 1 auto;display:flex;align-items:center;padding:2px 10px;min-height:92px}
   .score{width:100%;background:linear-gradient(180deg,#FFFDF6,#FFF3D9);border-radius:10px;
     box-shadow:0 8px 22px rgba(0,0,0,.42), 0 0 0 2px rgba(255,211,74,.22);padding:2px 4px;position:relative}
   .plabel{position:absolute;top:3px;right:12px;font-family:var(--display);font-size:12px;color:#8A6BB8;z-index:2}
@@ -456,7 +458,12 @@
     .score-wrap{padding:1px 8px}
     .hint{font-size:15px;min-height:15px;padding:0 10px;line-height:1.05}
     .hint b{font-size:20px}
-    .kbv{height:36vh}
+    .kbv{height:34vh;min-height:104px}   /* 건반을 살짝 낮춰 악보 자리를 낸다(손가락엔 충분) */
+  }
+  /* 아주 짧은 폰 가로(세로 360 이하). 건반을 더 낮춰서라도 악보를 반드시 보이게 한다. */
+  @media (max-height:360px){
+    .kbv{height:30vh;min-height:88px}
+    .score-wrap{min-height:84px}
   }
 
   .rail{position:absolute;top:0;bottom:0;left:0;display:flex;
@@ -2119,14 +2126,32 @@ function layout(){
    카드가 아래 안내 문구를 덮어버렸다. CSS 의 max-height:100% 는 부모 높이가 auto 라 안 먹으므로
    '남은 높이'와 '제 비율 높이' 중 작은 쪽을 직접 넣어준다. 넓은 화면에선 비율 쪽이 작아
    전과 똑같이 악보에 딱 맞는 카드가 된다.
-   비율은 viewBox 에서 읽는다 — 두 줄짜리 곡은 renderSystem 이 620x192 로 바꾼다.     */
+   비율은 viewBox 에서 읽는다 — 두 줄짜리 곡은 renderSystem 이 620x192 로 바꾼다.
+
+   ⚠️ 2026-07-24 버그: 폰 가로에서 악보가 통째로 안 보인다는 신고.
+   원인 두 가지 — (1) 세로가 아주 빠듯하면 avail<=0 이라 그냥 return 했는데,
+   그러면 svg 가 height:auto(제 비율 113px)로 남아 좁은 칸을 넘치고 화면 overflow:hidden 에
+   잘려 안 보였다. (2) 진입 때 rAF 한 프레임 뒤 fitStaff 가 도는데, 느린 웹뷰(갤S)에서는
+   그 순간 화면이 아직 안 떠 avail<=0 → 깨진 채 고정됐다(회전 전엔 안 고쳐짐).
+   이제 avail 이 작아도 '남은 높이'로 항상 눌러 칸 안에 들어오게 하고(meet 라 잘리지 않고
+   음표만 같이 작아진다), 화면이 아직 안 뜬 순간(avail<=0)엔 잘못된 값을 넣지 않고 건너뛴다.
+   그리고 loadSong 이 진입 뒤 몇 프레임·폰트 로드 후 다시 fitStaff 를 부른다(아래 settleStaff). */
 function fitStaff(){
-  const st=$('staff'), wrap=st.parentNode.parentNode;   /* .score → .score-wrap */
-  const avail=wrap.clientHeight-8;                      /* .score-wrap 안쪽 여백 + 카드 padding */
-  if(avail<=0) return;
+  const st=$('staff'), wrap=st&&st.parentNode&&st.parentNode.parentNode; /* .score → .score-wrap */
+  if(!st||!wrap) return;
   const vb=(st.getAttribute('viewBox')||'0 0 620 96').split(/\s+/);
   const natural=st.clientWidth*(+vb[3])/(+vb[2]);
+  if(!(natural>0)) return;                             /* 폭이 아직 0 이면 다음 기회에 */
+  const avail=wrap.clientHeight-8;                      /* .score-wrap 안쪽 여백 + 카드 padding */
+  if(avail<=0) return;                                  /* 화면이 아직 안 뜬 순간 — 건너뛰고 settleStaff 가 다시 잰다 */
   st.style.height=Math.round(Math.min(avail, natural))+'px';
+}
+/* 진입 직후엔 레이아웃·웹폰트가 덜 자리 잡아 fitStaff 가 헛measure 할 수 있다.
+   몇 프레임 뒤와 폰트 로드 완료 후 다시 재서, 느린 기기에서도 반드시 제 높이를 찾게 한다. */
+function settleStaff(){
+  const refit=()=>{ if($('screenPlay').classList.contains('on')) fitStaff(); };
+  requestAnimationFrame(()=>{ refit(); requestAnimationFrame(refit); });
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(refit).catch(()=>{});
 }
 let railStart=0;                    /* 지금 레일이 실제로 서 있는 자리 */
 const MARGIN=0;                     /* 0 = 화면 밖으로 나갔을 때만 따라간다 (평소엔 안 움직임) */
@@ -2617,7 +2642,7 @@ function loadSong(idx){
     s+=`<div class="flag" style="left:${acc/flatCount*100}%">${song.loot[i]||'⭐'}</div>`; });
   $('flags').innerHTML=s;
 
-  layout(); renderSystem();
+  layout(); renderSystem(); settleStaff();   /* settleStaff: 느린 웹뷰에서 악보가 안 보이던 것 방지 */
   if(isTimed()) startRhythm();
   else $('hint').textContent='빛나는 음표를 보고 같은 건반을 눌러줘';
 }

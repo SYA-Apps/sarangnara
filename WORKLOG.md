@@ -28,7 +28,13 @@ git push
 
 ## ⚠️ 앱(AAB)에 아직 안 들어간 웹 변경 — 다음 앱 빌드(versionCode 2)에 반영
 > 웹(GitHub Pages)은 push 로 바로 바뀌지만, **앱은 웹을 복사해 동봉**한 거라 자동으로 안 따라온다.
-> 아래를 **한꺼번에 모아** 14일 테스트를 채운 뒤 versionCode 2 로 넣는다.
+> 아래를 **한꺼번에 모아** versionCode 2 로 넣는다.
+
+> ✅ **2026-07-24: versionCode 2(=versionName 1.1) AAB 빌드 완료** — 웹 **v48** 스냅샷 동봉
+> (악보 안 보임 수정 + 엔딩 버튼 크기 통일). 파일:
+> `sarangnara-app/android/app/build/outputs/bundle/release/app-release.aab`
+> **다음: 사람이 Play Console 비공개 트랙 → `버전 수정`(빈 임시 버전 재사용) 으로 이 AAB 업로드 → 검토 제출.**
+> 아래 v42~v45 공유 링크도 이 v48 안에 함께 들어감(웹 원본을 통째로 복사하므로).
 
 **Play Console 에 게시된 AAB = versionCode 1 = 웹 `v41`**(2026-07-21 게시, 심사 통과). 그 뒤 웹에만 반영한 것:
 - **`v42`~`v45` 이 앱 공유하기**(2026-07-22) — 안드로이드=Play·아이폰=웹 두 링크. 공유는 3곳:

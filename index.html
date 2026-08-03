@@ -316,7 +316,11 @@
   /* ================= 연주 화면 ================= */
   #screenPlay{background:radial-gradient(140% 90% at 50% 0%, var(--plum-lift) 0%, var(--plum) 48%, var(--plum-deep) 100%)}
   .bar{display:flex;align-items:center;gap:6px;padding:4px 12px 2px;height:36px;flex:0 0 auto}
-  .tag{font-family:var(--display);font-size:24px;line-height:1;color:var(--canary);white-space:nowrap}
+  /* 곡 이름이 길면 상단바가 통째로 밀려 오른쪽 '사랑나라로' 버튼이 화면 밖으로 나갔다(v49).
+     min-width:0 이 없으면 flex 항목이 제 내용보다 작아지지 않아 줄지 않고 넘친다.
+     제목만 줄어들고 버튼들은 제 크기를 지킨다 — 어떤 곡 이름이 와도 밖으로 안 나간다. */
+  .tag{font-family:var(--display);font-size:24px;line-height:1;color:var(--canary);white-space:nowrap;
+    min-width:0;overflow:hidden;text-overflow:ellipsis}
   .tag em{font-style:normal;font-family:var(--body);font-size:10px;font-weight:800;
     letter-spacing:.12em;color:var(--dim);margin-right:5px}
   .meter{font-size:9px;font-weight:800;color:var(--dim);white-space:nowrap}
@@ -340,6 +344,14 @@
   .tbtn.mode[data-mode="rhythm"]{background:var(--canary);border-color:var(--canary);color:var(--ink)}
   .tbtn.mode[data-mode="full"]{background:var(--rose);border-color:var(--rose);color:#fff;
     box-shadow:0 0 0 2px rgba(255,123,169,.35)}
+  /* 폰 가로(세로 430 미만)는 상단바 폭이 가장 빠듯하다. 여기서만 군살을 뺀다(v49).
+     박자·빠르기 표시는 박자표가 악보에 그려져 있어 없어도 되는 쪽이라 먼저 숨긴다.
+     그래도 제목이 길면 위 .tag 말줄임이 마지막으로 받아준다. */
+  @media (max-height:430px){
+    .meter{display:none}
+    .bar .tbtn{padding:4px 7px}
+    .oct-pill{padding:2px 7px}
+  }
 
   .world{position:relative;height:54px;margin:1px 12px 0;border-radius:9px;overflow:hidden;
     background:linear-gradient(180deg,#33254D 0%,#251A3C 70%,#1E1533 100%);flex:0 0 auto}

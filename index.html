@@ -2937,6 +2937,18 @@ $('restartBtn').addEventListener('click', ()=>{
 /* 이 게임 공유하기 — 타이틀 출발 옆, 엔딩, 지도 상단바 모두 같은 동작 */
 $('endShareBtn').addEventListener('click', shareApp);
 ['shareTop','shareMap'].forEach(id=>{ var b=$(id); if(b) b.addEventListener('click', shareApp); });
+/* 안드로이드 뒤로가기 — 연주중엔 지도로, 지도에선 타이틀로, 타이틀에서만 앱 종료.
+   기존 버튼과 똑같이 동작하게 그 버튼을 그대로 누른 것처럼 만든다(로직 중복 방지).
+   Capacitor.Plugins.App 은 스토어 앱 안에서만 있고 웹에는 없다 — 리스너를 달면
+   그 순간부터 기본 동작(웹뷰 히스토리 없음 → 즉시 종료)이 꺼지므로 여기서 직접 처리한다. */
+(function(){
+  if(!window.Capacitor || !window.Capacitor.Plugins || !window.Capacitor.Plugins.App) return;
+  window.Capacitor.Plugins.App.addListener('backButton', function(){
+    if($('screenPlay').classList.contains('on')) $('backBtn').click();
+    else if($('screenMap').classList.contains('on')) $('homeBtn').click();
+    else window.Capacitor.Plugins.App.exitApp();
+  });
+})();
 /* 모드는 지도에서도, 연주 중에도 바꿀 수 있다 */
 function setMode(m){
   mode=m;

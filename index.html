@@ -3054,6 +3054,65 @@ if('serviceWorker' in navigator && location.protocol==='https:' && !window.Capac
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
+
+/* ======================================================================
+   새 버전 자동 반영 — 홈 화면에 추가한 사람도 다시 안 깔게
+   ======================================================================
+   서비스워커는 HTML 을 네트워크 우선으로 받으므로 **새로고침만 하면** 최신이 뜬다.
+   문제는 홈 화면 앱(PWA)이 메모리에서 그대로 되살아나면 새로고침할 일이 없어서,
+   새 배포가 나와도 영영 옛 화면을 보게 된다는 것이다.
+
+   그래서 **앱이 다시 보일 때마다** 서버에 새 버전이 있는지 묻고, 있으면 새로고침한다.
+   - 비교 기준은 `document.lastModified`(지금 보고 있는 문서가 언제 것인지) 와
+     서버의 `Last-Modified` 헤더다. **따로 버전 파일을 두지 않아도 되고,
+     sw.js 의 VER 을 손으로 올릴 필요도 없다.**
+   - `HEAD` + `cache:'no-store'` 라 브라우저·서비스워커 캐시를 둘 다 지나친다
+     (sw.js 는 GET 이 아니면 손대지 않는다).
+   - 인터넷이 없으면 요청이 실패할 뿐이고 캐시로 그대로 논다 — 오프라인 유지.
+   - 🚫 **연주 중에는 절대 새로고침하지 않는다.** 아이가 치던 곡이 날아가면 안 되니
+     지도나 타이틀로 돌아온 뒤에 반영한다.
+   ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
+(function(){
+  if(location.protocol!=='https:' || window.Capacitor) return;
+  if(!window.fetch || !document.lastModified) return;
+
+  /* 지금 화면에 떠 있는 문서가 언제 것인지. 파싱이 안 되는 브라우저면 그냥 포기. */
+  const mine = new Date(document.lastModified).getTime();
+  if(!mine) return;
+
+  let asking = false;   // 확인 요청이 이미 날아가 있음 (중복 방지)
+
+  const playing = ()=> $('screenPlay').classList.contains('on');
+
+  function check(){
+    /* 연주 중이면 묻지도 않는다. 다음 기회(앱을 다시 열 때, 또는 30분 뒤)에 반영된다.
+       🚫 곡이 끝나자마자 새로고침하지 않는 이유: 아이가 지도에서 다음 사람을 누르는
+          순간과 겹치면 그 누름이 통째로 날아간다. 급할 것 없으니 다음 기회를 기다린다. */
+    if(asking || document.hidden || playing()) return;
+    asking = true;
+    fetch('./index.html', {method:'HEAD', cache:'no-store'})
+      .then(res=>{
+        asking = false;
+        if(!res || !res.ok) return;
+        const stamp = res.headers.get('Last-Modified');
+        if(!stamp) return;
+        const theirs = new Date(stamp).getTime();
+        /* 서버 것이 더 새것일 때만. 같거나 옛것이면 가만히 둔다
+           (같은 값에 새로고침하면 무한히 다시 뜬다). */
+        if(theirs && theirs > mine) location.reload();
+      })
+      .catch(()=>{ asking = false; });   /* 오프라인 — 조용히 넘어간다 */
+  }
+
+  /* 앱을 다시 열었을 때(=이 앱이 다시 보일 때)가 가장 중요한 순간이다.
+     홈 화면 앱은 이때 말고는 새 파일을 받을 기회가 없다. */
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) check(); });
+  window.addEventListener('focus', check);
+  window.addEventListener('pageshow', check);   /* iOS 가 메모리에서 되살릴 때 */
+
+  /* 켜 둔 채 오래 두는 경우를 위해 30분마다 한 번 더. */
+  setInterval(check, 30*60*1000);
+})();
 </script>
 </body>
 </html>

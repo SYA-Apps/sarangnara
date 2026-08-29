@@ -456,6 +456,11 @@
   .legal{position:absolute;right:10px;bottom:6px;font-size:10px;color:#8A7BA8;letter-spacing:.02em}
   .legal a{color:#8A7BA8;text-decoration:none;padding:4px 3px}
 
+  /* 버전 표시 — 지금 떠 있는 판이 무엇인지. `.legal` 과 같은 크기·색으로 반대쪽 구석에.
+     링크가 아니므로 아이가 구석을 잘못 눌러도 아무 일도 일어나지 않게 pointer-events 를 끈다. */
+  .ver{position:absolute;left:10px;bottom:6px;font-size:10px;color:#8A7BA8;
+    letter-spacing:.02em;pointer-events:none;-webkit-user-select:none;user-select:none}
+
   .hint{text-align:center;font-family:var(--display);font-size:19px;color:#CDB9EE;
     padding:1px 12px 2px;min-height:24px;flex:0 0 auto;line-height:1.15}
   .hint b{color:var(--canary);font-size:26px;font-family:var(--display)}
@@ -661,6 +666,8 @@
   <div class="legal">
     <a href="privacy.html">개인정보처리방침</a> · <a href="licenses.html">만든 것들</a>
   </div>
+  <!-- 버전은 스크립트가 채운다(아래 '버전 표시'). 비워 두면 아무것도 안 보인다. -->
+  <div class="ver" id="verTag"></div>
   </div>
 </div>
 
@@ -3043,6 +3050,57 @@ window.addEventListener('orientationchange', ()=>setTimeout(()=>{
 },250));
 
 buildMap();
+
+/* ======================================================================
+   버전 표시 — 타이틀 화면 왼쪽 아래 구석
+   ======================================================================
+   테스터에게 "지금 무슨 버전이야?" 하고 물었을 때 **폰만 보고 답할 수 있게** 한다.
+   전에는 개발자가 `adb dumpsys package` 로 캐 봐야 알 수 있었다.
+
+   숫자와 날짜를 **같이** 적는다:
+   - `APP_VER` 은 손으로 올리는 숫자다(sw.js 의 VER 과 같은 값으로 맞춰 둔다).
+   - 날짜는 `document.lastModified` 에서 **저절로** 나온다. 바로 아래 자동 업데이트
+     코드가 "최신인가"를 판단할 때 쓰는 것과 **같은 출처**라, 화면에 뜬 날짜가 곧
+     지금 받아 놓은 판이다.
+   👉 **둘을 같이 적는 이유**: 숫자만 적으면 올리는 걸 깜빡한 순간부터 화면이
+      거짓말을 시작한다. 날짜는 깜빡할 수가 없어서 언제나 진실을 말한다.
+      숫자는 사람이 부르기 쉬우라고 있는 것이고, 진짜 근거는 날짜다.
+
+   앱(Capacitor) 안에서는 파일을 동봉해 열기 때문에 `document.lastModified` 가
+   배포 시각을 뜻하지 않는다 — 그래서 앱에서는 그 날짜를 쓰지 않고 **네이티브가 아는
+   진짜 버전**(versionName(versionCode))을 물어서 적는다. 못 얻으면 숫자만 적는다.
+   ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
+(function(){
+  const APP_VER = 'v52';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
+
+  const el = $('verTag');
+  if(!el) return;
+
+  /* "2026-08-29 20:00" → "08-29 20:00". 연도는 자리만 먹어서 뺀다. */
+  function stamp(){
+    const d = new Date(document.lastModified);
+    if(isNaN(d.getTime())) return '';
+    const p = n => (n < 10 ? '0' : '') + n;
+    return p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  if(window.Capacitor){
+    /* 앱 안에서는 **날짜를 쓰지 않는다.** 파일을 동봉해 열기 때문에
+       `document.lastModified` 가 배포 시각이 아니라 엉뚱한 값이고, 그걸 띄우면
+       "언제 받은 판인지"를 묻는 사람을 속이게 된다. 숫자를 먼저 띄워 두고
+       (빈 칸이 보이지 않게) 네이티브가 답하면 진짜 버전으로 바꿔 단다. */
+    el.textContent = APP_VER;
+    const cap = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+    if(cap && cap.getInfo){
+      cap.getInfo().then(function(info){
+        el.textContent = '앱 ' + info.version + '(' + info.build + ') · ' + APP_VER;
+      }).catch(function(){});   // 못 얻으면 숫자만 남는다 — 틀린 것보다 낫다
+    }
+  }else{
+    const s = stamp();
+    el.textContent = s ? APP_VER + ' · ' + s : APP_VER;
+  }
+})();
 
 /* ======================================================================
    오프라인 지원 — 서비스워커 (https 로 열었을 때만 동작)

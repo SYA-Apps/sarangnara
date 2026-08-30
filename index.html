@@ -2568,23 +2568,61 @@ function copyText(txt){
   }catch(e){ return false; }
 }
 
+/* 복사로 떨어졌을 때의 마무리. 공유 시트를 못 띄운 경우에만 부른다. */
+function shareFallback(text){
+  if(copyText(text)){ toast('두 링크를 복사했어요!\n안드로이드는 앱, 아이폰은 웹으로 보내줘 💌'); return; }
+  toast(text);   // 복사조차 안 되면 링크를 그냥 보여준다
+}
+
+/* 취소는 실패가 아니다 — 공유 시트를 띄웠는데 사람이 닫은 것이니 복사로 되돌아가지 않는다.
+   (되돌아가면 "취소했는데 왜 복사됐지?" 가 된다) */
+function shareCanceled(e){
+  var s = (e && (e.name || e.message) || '') + '';
+  return /abort|cancel|취소/i.test(s);
+}
+
 function shareApp(){
   var text = shareBody();
-  /* 1) OS 공유 시트 — 취소(AbortError)나 실패는 조용히 넘긴다.
-        catch 를 반드시 달 것: 안 그러면 전역 unhandledrejection 이 오류바를 띄운다.
-        url 은 일부러 안 넘긴다 — 두 링크를 text 에 나눠 담았는데 url 까지 주면
-        공유 대상 앱이 링크 하나만 강조하거나 중복시킬 수 있다. */
-  if(navigator.share){
+
+  /* ── 1) 스토어 앱(Capacitor) → 네이티브 공유 시트 ──────────────────────────
+     🚨 **안드로이드 WebView 에는 Web Share API 가 아예 없다.** 그래서 앱에서는
+     `navigator.share` 가 undefined 이고, 예전엔 곧장 클립보드 복사로 떨어져
+     **카카오톡·문자가 뜨지 않았다**(2026-08-30 사용자 신고). `@capacitor/share` 가
+     네이티브 `ACTION_SEND` 로 진짜 공유 시트를 띄워 준다.
+     🔒 이 플러그인은 **권한을 하나도 추가하지 않는다**(플러그인 AndroidManifest 가 비어 있음).
+        `uses-permission 0개` 가 이 앱의 심사 통과 근거라 반드시 유지할 것.
+     ⚠️ 플러그인이 안 실린 옛 버전에서는 `Plugins.Share` 가 없으니 그대로 아래로 흘러간다. */
+  var capShare = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Share;
+  if(capShare && capShare.share){
     try{
-      var p = navigator.share({ title:'사랑나라', text:text });
-      if(p && p.catch) p.catch(function(){});
+      var cp = capShare.share({
+        title:'사랑나라', text:text, dialogTitle:'친구에게 알려주기'
+      });
+      if(cp && cp.catch) cp.catch(function(e){
+        /* 진짜 실패(플러그인 미등록 등)일 때만 복사로 되돌아간다. */
+        if(!shareCanceled(e)) shareFallback(text);
+      });
       return;
     }catch(e){}
   }
-  /* 2) 클립보드 복사 */
-  if(copyText(text)){ toast('두 링크를 복사했어요!\n안드로이드는 앱, 아이폰은 웹으로 보내줘 💌'); return; }
-  /* 3) 그래도 안 되면 링크를 보여준다 */
-  toast(text);
+
+  /* ── 2) 브라우저(폰) → OS 공유 시트 ───────────────────────────────────────
+     폰 크롬·사파리는 여기서 앱과 **똑같은** 시트가 뜬다(카카오톡·문자·메일…).
+     catch 를 반드시 달 것: 안 그러면 전역 unhandledrejection 이 오류바를 띄운다.
+     url 은 일부러 안 넘긴다 — 두 링크를 text 에 나눠 담았는데 url 까지 주면
+     공유 대상 앱이 링크 하나만 강조하거나 중복시킬 수 있다. */
+  if(navigator.share){
+    try{
+      var p = navigator.share({ title:'사랑나라', text:text });
+      if(p && p.catch) p.catch(function(e){
+        if(!shareCanceled(e)) shareFallback(text);
+      });
+      return;
+    }catch(e){}
+  }
+
+  /* ── 3) 공유 시트가 없는 환경(주로 PC 브라우저) → 클립보드 복사 ──────────── */
+  shareFallback(text);
 }
 function setHero(st, anim){
   const h=$('hero'); setSVGHTML(h, heroSVG(st, who));
@@ -3071,7 +3109,7 @@ buildMap();
    진짜 버전**(versionName(versionCode))을 물어서 적는다. 못 얻으면 숫자만 적는다.
    ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
 (function(){
-  const APP_VER = 'v52';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
+  const APP_VER = 'v53';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
 
   const el = $('verTag');
   if(!el) return;

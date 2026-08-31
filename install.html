@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사랑나라 테스트 참여 안내</title>
+<meta name="theme-color" content="#180E2E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="사랑나라">
+<meta property="og:title" content="사랑나라 테스트 도와주세요 (14일)">
+<meta property="og:description" content="안드로이드는 앱 설치, 아이폰은 웹으로. 눌러서 내 폰에 맞는 방법을 확인하세요.">
+<meta property="og:url" content="https://sya-apps.github.io/sarangnara/install.html">
+<meta property="og:image" content="https://sya-apps.github.io/sarangnara/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+  @font-face{font-family:'Gaegu';src:url('fonts/Gaegu-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+  @font-face{font-family:'GothicA1';src:url('fonts/GothicA1-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+  @font-face{font-family:'GothicA1';src:url('fonts/GothicA1-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+  @font-face{font-family:'GothicA1';src:url('fonts/GothicA1-ExtraBold.woff2') format('woff2');font-weight:800;font-display:swap}
+
+  :root{
+    color-scheme:light dark;
+    --bg:#fdfbff; --fg:#241a3a; --dim:#6b6480; --accent:#5b3fa8;
+    --box:#f2ecff; --line:#e2dcf0; --card:#fff;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#180E2E; --fg:#ece7f7; --dim:#a49bc0; --accent:#c3aef5;
+           --box:#241a3a; --line:#372a55; --card:#1f1538; }
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;padding:1.5rem 1.15rem 3.5rem;background:var(--bg);color:var(--fg);
+       font-family:'GothicA1',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.7;
+       -webkit-text-size-adjust:100%}
+  main{max-width:26rem;margin:0 auto}
+
+  .hero{text-align:center;margin-bottom:1.5rem}
+  .hero img{width:78px;height:78px;border-radius:1.1rem;display:block;margin:0 auto .6rem}
+  h1{font-family:'Gaegu','GothicA1',sans-serif;font-size:1.9rem;font-weight:400;margin:0 0 .2rem;line-height:1.3}
+  .hero p{margin:0;color:var(--dim);font-size:.9rem}
+
+  /* 기기 고르기 */
+  .picker{display:flex;gap:.5rem;margin:0 0 1.25rem}
+  .picker button{flex:1;padding:.7rem .4rem;border:1.5px solid var(--line);background:transparent;
+    color:var(--dim);border-radius:.8rem;font:inherit;font-weight:600;font-size:.92rem;cursor:pointer}
+  .picker button[aria-selected="true"]{border-color:var(--accent);color:var(--accent);background:var(--box)}
+
+  section[hidden]{display:none}
+
+  ol{margin:0;padding-left:1.3rem}
+  ol li{margin:.55rem 0}
+  h2{font-size:1.05rem;font-weight:800;margin:0 0 .8rem;color:var(--accent)}
+
+  .btn{display:block;text-align:center;text-decoration:none;background:var(--accent);color:#fff;
+       font-weight:800;font-size:1.02rem;padding:.95rem 1rem;border-radius:.85rem;margin:1rem 0 .4rem}
+  @media (prefers-color-scheme:dark){ .btn{color:#180E2E} }
+  .btn-note{color:var(--dim);font-size:.8rem;text-align:center;margin:0 0 .4rem}
+
+  .box{background:var(--box);border-radius:.85rem;padding:.9rem 1.05rem;margin:1.1rem 0}
+  .box p{margin:0}
+  .box p + p{margin-top:.5rem}
+  .box.warn{border:1.5px solid var(--accent)}
+
+  .ask{margin:1.5rem 0 0;padding:1.1rem 1.15rem;background:var(--card);border:1.5px solid var(--line);border-radius:.85rem}
+  .ask h3{margin:0 0 .6rem;font-size:1rem;font-weight:800}
+  .ask ul{margin:0;padding-left:1.15rem}
+  .ask li{margin:.5rem 0}
+  .ask .why{color:var(--dim);font-size:.85rem;margin:.8rem 0 0}
+
+  strong{font-weight:800}
+  a{color:var(--accent)}
+  .foot{margin-top:2.5rem;text-align:center;color:var(--dim);font-size:.82rem}
+  .foot a{display:inline-block;margin-top:.4rem}
+  kbd{font:inherit;font-weight:800;color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+
+  <div class="hero">
+    <img src="icon-192.png" alt="">
+    <h1>사랑나라 테스트를<br>도와주세요</h1>
+    <p>아이와 함께 듣고 치는 피아노 동요 앱이에요</p>
+  </div>
+
+  <div class="picker" role="tablist">
+    <button id="tab-and" role="tab" aria-selected="false" aria-controls="and">📱 안드로이드</button>
+    <button id="tab-ios" role="tab" aria-selected="false" aria-controls="ios">🍎 아이폰 · 아이패드</button>
+  </div>
+
+  <!-- ── 안드로이드 ── -->
+  <section id="and" role="tabpanel" aria-labelledby="tab-and" hidden>
+    <h2>안드로이드 — 앱으로 설치해요</h2>
+
+    <a class="btn" href="https://play.google.com/apps/testing/com.sya.sarangnara">테스터 신청하러 가기</a>
+    <p class="btn-note">눌러도 아무 일이 없으면 이 화면을 크롬으로 열어 주세요</p>
+
+    <ol>
+      <li>위 버튼을 누르면 열리는 화면에서 <strong>「테스터 되기(Become a tester)」</strong></li>
+      <li>그 아래 뜨는 <strong>「Google Play에서 다운로드」</strong> 로 설치</li>
+    </ol>
+
+    <div class="box warn">
+      <p>⚠️ <strong>제게 알려주신 지메일 계정</strong>으로 로그인된 폰에서 열어 주세요.
+      다른 계정으로 열면 “테스터가 아닙니다” 라고 떠요.</p>
+    </div>
+
+    <div class="ask">
+      <h3>🙏 부탁이 두 가지 있어요</h3>
+      <ul>
+        <li><strong>14일 동안 앱을 지우지만 말아 주세요.</strong> 이건 꼭 부탁드려요 🙇</li>
+        <li>그동안 <strong>시간 나실 때 한두 번만 열어서 체험해 주시면</strong> 정말 감사하겠습니다.
+            한 곡만 쳐 보셔도 돼요.</li>
+      </ul>
+      <p class="why">지난번엔 “안 쓰셔도 된다”고 말씀드렸는데, 구글이 실제로 열어 본 기록까지
+      보더라고요. 그것 때문에 심사에서 한 번 반려됐어요 🥲<br>
+      혹시 이상하거나 불편한 점이 있으면 한 줄이라도
+      <a href="mailto:sya.apps.dev@gmail.com?subject=%5B%EC%82%AC%EB%9E%91%EB%82%98%EB%9D%BC%5D%20%ED%85%8C%EC%8A%A4%ED%8A%B8%20%EC%9D%98%EA%B2%AC">sya.apps.dev@gmail.com</a>
+      으로 보내주시면 큰 도움이 돼요.</p>
+    </div>
+  </section>
+
+  <!-- ── 아이폰 ── -->
+  <section id="ios" role="tabpanel" aria-labelledby="tab-ios" hidden>
+    <h2>아이폰 — 웹으로 즐겨요</h2>
+
+    <p>아이폰용 앱은 아직 준비 중이라, <strong>사파리에서 열면 앱처럼 쓸 수 있어요.</strong>
+    (아이폰은 구글 테스트 집계에는 안 잡혀서, 편하게 즐겨만 주셔도 돼요.)</p>
+
+    <a class="btn" href="index.html">사랑나라 열기</a>
+
+    <div class="box" id="kakao-ios" hidden>
+      <p>📌 <strong>지금 카카오톡 안에서 보고 계세요.</strong> 여기서는 홈 화면에 추가가 안 돼요.</p>
+      <p>오른쪽 아래 <kbd>⋯</kbd> 를 누르고 <kbd>Safari로 열기</kbd> 를 고른 뒤 아래 순서대로 해 주세요.</p>
+    </div>
+
+    <h2 style="margin-top:1.6rem">홈 화면에 아이콘 만들기</h2>
+    <ol>
+      <li>위 <strong>「사랑나라 열기」</strong> 를 눌러요</li>
+      <li>사파리 <strong>아래쪽 공유 버튼</strong> <kbd>⬆️</kbd> 을 눌러요</li>
+      <li>목록을 내려서 <strong>「홈 화면에 추가」</strong> 를 눌러요</li>
+    </ol>
+    <p>그러면 앱처럼 아이콘이 생기고, 전체 화면으로 열려요.</p>
+  </section>
+
+  <p class="foot">
+    사랑나라는 어떤 개인정보도 수집하지 않아요.<br>
+    <a href="privacy.html">개인정보처리방침 보기</a>
+  </p>
+
+</main>
+
+<script>
+/* 기기에 맞는 안내를 먼저 보여 준다. 사람이 직접 바꿀 수도 있게 탭은 늘 둘 다 둔다
+   — 자동 판별은 틀릴 수 있고, 틀렸을 때 빠져나갈 길이 없으면 안내문이 아니라 벽이 된다. */
+(function () {
+  var ua = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(ua);
+  /* 아이패드는 iPadOS 13+ 부터 UA 가 맥이라 iPad 로 안 잡힌다 → 터치되는 맥으로 가려낸다 */
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) ||
+              (/Macintosh/i.test(ua) && typeof document.ontouchend !== 'undefined');
+  var inKakao = /KAKAOTALK/i.test(ua);
+
+  var tabs = { and: document.getElementById('tab-and'), ios: document.getElementById('tab-ios') };
+  var panels = { and: document.getElementById('and'), ios: document.getElementById('ios') };
+
+  function show(which) {
+    for (var k in panels) {
+      panels[k].hidden = (k !== which);
+      tabs[k].setAttribute('aria-selected', String(k === which));
+    }
+  }
+  tabs.and.addEventListener('click', function () { show('and'); });
+  tabs.ios.addEventListener('click', function () { show('ios'); });
+
+  /* PC 로 열면 안드로이드 쪽을 보여 준다 — 부탁하는 대상이 안드로이드 테스터라서다 */
+  show(isIOS && !isAndroid ? 'ios' : 'and');
+
+  /* 카톡 인앱 브라우저(아이폰)에서는 '홈 화면에 추가' 가 아예 없다 — 사파리로 여는 법을 띄운다 */
+  if (inKakao && isIOS) document.getElementById('kakao-ios').hidden = false;
+})();
+</script>
+</body>
+</html>

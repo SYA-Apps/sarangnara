@@ -87,6 +87,14 @@
   .pick svg{width:58px;height:70px}
   .pick b{font-family:var(--display);font-size:20px;color:var(--cream)}
   .pick span{font-size:9.5px;font-weight:700;color:var(--dim)}
+  /* 난이도 표시 — 테스터 의견(2026-09-08): "난이도가 너무 어렵다".
+     실은 캐릭터를 고르는 것이 곧 난이도(템포)인데 화면에는 '차분해요/신나요' 로만
+     적혀 있어 성격으로 읽혔다. 줄을 늘리지 않고 같은 줄 앞에 붙인다 —
+     폰 가로는 세로가 빠듯해서(아래 max-height:460px) 한 줄만 늘어도 '출발!' 이 밀려난다. */
+  .pick .lv{font-style:normal;display:inline-block;margin-right:5px;
+    padding:1px 6px;border-radius:999px;letter-spacing:.02em}
+  .pick .lv.easy{background:rgba(95,224,190,.2);color:#7FE8CC}
+  .pick .lv.hard{background:rgba(255,211,74,.18);color:#FFD34A}
   .go-btn{font-family:var(--display);font-size:26px;margin-top:9px;padding:7px 40px;border:0;
     border-radius:14px;background:var(--rose);color:#fff;box-shadow:0 4px 0 #D45285}
   .go-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #D45285}
@@ -656,8 +664,8 @@
   <div class="picks">
     <!-- 모드 선택은 한 번 끝까지 깬 아이에게만 보인다. 세로가 빠듯해 캐릭터 양옆에 둔다 -->
     <button class="ord" id="ordStory" data-free="0" style="display:none"><b>이야기 모드</b><em>순서대로</em></button>
-    <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span>차분해요 · 천천히</span></button>
-    <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span>신나요 · 빠르게</span></button>
+    <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span><i class="lv easy">쉬움</i>차분해요 · 천천히</span></button>
+    <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span><i class="lv hard">조금 어려움</i>신나요 · 빠르게</span></button>
     <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>마음대로</em></button>
   </div>
   <button class="go-btn" id="startBtn" disabled>캐릭터를 골라줘</button>
@@ -3163,7 +3171,7 @@ buildMap();
    진짜 버전**(versionName(versionCode))을 물어서 적는다. 못 얻으면 숫자만 적는다.
    ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
 (function(){
-  const APP_VER = 'v54';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
+  const APP_VER = 'v55';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
 
   const el = $('verTag');
   if(!el) return;

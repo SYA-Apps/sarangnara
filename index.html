@@ -1644,7 +1644,41 @@ function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(_){} }
    ====================================================================== */
 let ac=null, keepAlive=null, audioBroken=false, stallTicks=0;
 
+/* 아이폰 무음 스위치 — 사파리는 웹 오디오를 «효과음» 으로 보고 무음 모드에서 끈다.
+   악기 게임이라 «음악 재생» 으로 알려 무음이어도 소리가 나게 한다.
+   · 사파리 17+ : audioSession.type='playback' 한 줄
+   · 그보다 옛 iOS : 소리 없는 <audio> 를 반복 재생해 세션을 «재생» 으로 바꾼다(터치 안에서만 켜짐) */
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+let silentEl=null, silentOn=false;
+function setPlaybackSession(){
+  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(_){}
+}
+function silentWavURL(){
+  const n=4000, b=new ArrayBuffer(44+n), v=new DataView(b);   /* 0.5초 · 8kHz · 8비트 무음 */
+  const s=(o,t)=>{ for(let i=0;i<t.length;i++) v.setUint8(o+i,t.charCodeAt(i)); };
+  s(0,'RIFF'); v.setUint32(4,36+n,true); s(8,'WAVE'); s(12,'fmt ');
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,8000,true); v.setUint32(28,8000,true); v.setUint16(32,1,true); v.setUint16(34,8,true);
+  s(36,'data'); v.setUint32(40,n,true);
+  for(let i=0;i<n;i++) v.setUint8(44+i,128);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+function unmuteOldIOS(){
+  if(!IS_IOS || navigator.audioSession || silentOn || document.hidden) return;
+  try{
+    if(!silentEl){
+      silentEl=document.createElement('audio');
+      silentEl.src=silentWavURL(); silentEl.loop=true;
+      silentEl.setAttribute('playsinline',''); silentEl.setAttribute('x-webkit-airplay','deny');
+    }
+    silentEl.play().then(()=>{ silentOn=true; }).catch(()=>{});
+  }catch(_){}
+}
+setPlaybackSession();
+
 function buildAC(){
+  setPlaybackSession();
   try{
     ac = new (window.AudioContext||window.webkitAudioContext)();
   }catch(_){ ac=null; return null; }
@@ -1674,6 +1708,7 @@ function resetAC(){
 function ensureAC(){
   if(!ac) buildAC();
   if(ac && ac.state!=='running') tryResume();
+  unmuteOldIOS();
   return ac;
 }
 // 감시 타이머 — 소리가 죽어 있으면 안내 배지를 띄움
@@ -1687,7 +1722,10 @@ setInterval(()=>{
   }
 }, 700);
 document.addEventListener('visibilitychange', ()=>{
-  if(document.hidden) bgmStop(); else tryResume(); });
+  if(document.hidden){
+    bgmStop();
+    if(silentEl && silentOn){ try{ silentEl.pause(); }catch(_){} silentOn=false; }   /* 다음 터치 때 다시 켠다 */
+  } else tryResume(); });
 window.addEventListener('pageshow', tryResume);
 window.addEventListener('focus', tryResume);
 // 어떤 터치든 잡아서 복구 (capture 단계 — 게임 조작을 막지 않음)

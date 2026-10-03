@@ -2589,13 +2589,10 @@ function showPop(e){ const p=$('pop'); p.textContent=e;
    - 아이폰·그 밖은 웹 버전       (언제나 열린다) */
 var SHARE_URL_AOS = 'https://play.google.com/store/apps/details?id=com.sya.sarangnara';
 var SHARE_URL_WEB = 'https://sya-apps.github.io/sarangnara/';
-var SHARE_TEXT = '사랑나라 - 피아노 동요
-피아노를 쳐서 회색이 된 마을에 색을 되돌리는 아이 게임이에요.';
+var SHARE_TEXT = '사랑나라 - 피아노 동요\n피아노를 쳐서 회색이 된 마을에 색을 되돌리는 아이 게임이에요.';
 function shareBody(){
   /* 스토어 주소는 공개되기 전이라 넣지 않는다. 공개되면 대문 링크가 폰에서 Play 로 이어 준다. */
-  return SHARE_TEXT + '
-
-' + SHARE_URL_WEB;
+  return SHARE_TEXT + '\n\n' + SHARE_URL_WEB;
 }
 
 var toastTimer = 0;
@@ -2624,8 +2621,7 @@ function copyText(txt){
 
 /* 복사로 떨어졌을 때의 마무리. 공유 시트를 못 띄운 경우에만 부른다. */
 function shareFallback(text){
-  if(copyText(text)){ toast('복사했어요!
-친구에게 붙여 넣어 보내 주세요 💌'); return; }
+  if(copyText(text)){ toast('복사했어요!\n친구에게 붙여 넣어 보내 주세요 💌'); return; }
   toast(text);   // 복사조차 안 되면 링크를 그냥 보여준다
 }
 

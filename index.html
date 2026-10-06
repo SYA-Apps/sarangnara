@@ -79,8 +79,9 @@
   .t-title{font-family:var(--display);font-size:62px;line-height:1;color:var(--canary);
     text-shadow:0 0 40px rgba(255,211,74,.35)}
   .t-story{font-size:11.5px;color:#CDB9EE;line-height:1.75;text-align:center;margin:3px 0 8px}
-  .picks{display:flex;gap:22px}
-  .pick{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);
+  .picks{display:flex;gap:22px;max-width:100%}
+  /* 세 캐릭터 상자는 폭을 똑같이(글이 길고 짧아도 달라 보이지 않게). 좁으면 셋이 같이 줄어든다 */
+  .pick{flex:0 1 150px;width:150px;min-width:0;text-align:center;box-sizing:border-box;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);
     border-radius:16px;padding:6px 16px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
   .pick:active{transform:translateY(2px)}
   .pick.sel{background:rgba(255,211,74,.16);border-color:var(--canary)}
@@ -110,7 +111,7 @@
     .ord{width:84px;padding:5px 5px;border-radius:10px}
     .ord b{font-size:11.5px}
     .ord em{font-size:7.5px}
-    .pick{padding:4px 13px 5px;border-radius:13px}
+    .pick{padding:4px 8px 5px;border-radius:13px;flex-basis:138px;width:138px}
     .pick svg{width:46px;height:56px}
     .pick b{font-size:17px}
     .pick span{font-size:8.5px}
@@ -128,7 +129,7 @@
     .t-title{font-size:92px}
     .t-story{font-size:18px;line-height:1.9;margin:10px 0 16px}
     .picks{gap:30px}
-    .pick{border-radius:22px;padding:12px 26px 14px;gap:5px}
+    .pick{border-radius:22px;padding:12px 16px 14px;gap:5px;flex-basis:230px;width:230px}
     .pick svg{width:84px;height:100px}
     .pick b{font-size:29px}
     .pick span{font-size:14px}
@@ -142,7 +143,7 @@
     .t-title{font-size:108px}
     .t-story{font-size:20px;line-height:1.95;margin:14px 0 22px}
     .picks{gap:38px}
-    .pick{border-radius:24px;padding:16px 30px 18px;gap:6px}
+    .pick{border-radius:24px;padding:16px 18px 18px;gap:6px;flex-basis:280px;width:280px}
     .pick svg{width:100px;height:120px}
     .pick b{font-size:34px}
     .pick span{font-size:16px}
@@ -672,7 +673,7 @@
   <div class="picks">
     <!-- 모드 선택은 한 번 끝까지 깬 아이에게만 보인다. 세로가 빠듯해 캐릭터 양옆에 둔다 -->
     <button class="ord" id="ordStory" data-free="0" style="display:none"><b>이야기 모드</b><em>순서대로</em></button>
-    <button class="pick" data-who="kid"><svg viewBox="0 0 48 60"></svg><b>유치원생</b><span><i class="lv easy">아주 쉬움</i>건반이 알려줘요 · 따라 쳐요</span></button>
+    <button class="pick" data-who="kid"><svg viewBox="0 0 48 60"></svg><b>유치원생</b><span><i class="lv easy">아주 쉬움</i>건반이 알려줘요</span></button>
     <button class="pick" data-who="girl"><svg viewBox="0 0 48 60"></svg><b>여자아이</b><span><i class="lv easy">쉬움</i>차분해요 · 천천히</span></button>
     <button class="pick" data-who="boy"><svg viewBox="0 0 48 60"></svg><b>남자아이</b><span><i class="lv hard">조금 어려움</i>신나요 · 빠르게</span></button>
     <button class="ord" id="ordFree" data-free="1" style="display:none"><b>자유 모드</b><em>마음대로</em></button>
@@ -2768,7 +2769,10 @@ function clearSong(){
       `<i style="color:#B0A0C0">MISS</i> ${tally[0]}<br>`+
       `<i style="color:#2FB894">길이 맞춤</i> ${holdOk} / ${holdTot}<br>`+
       `<i>최고 콤보</i> ${maxCombo}`;
-    $('rMsg').textContent=`점수 ${score.toLocaleString()}점 · 정확도 ${Math.round(acc*100)}%`;
+    /* 유치원생은 칠 건반을 알려 주니 그대로, 힌트 없이 악보만 보고 친 캐릭터는 점수에 20% 보너스 */
+    let bonusTxt='';
+    if(who!=='kid' && score>0){ const bonus=Math.round(score*.2); score+=bonus; bonusTxt=` (힌트 없이 쳐서 보너스 +${bonus.toLocaleString()})`; }
+    $('rMsg').textContent=`점수 ${score.toLocaleString()}점${bonusTxt} · 정확도 ${Math.round(acc*100)}%`;
     totalScore+=score;
   }else{
     const stars=mistakes===0?3:mistakes<=3?2:1;

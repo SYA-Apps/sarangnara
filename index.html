@@ -599,6 +599,14 @@
   .share-link:active{opacity:.55}
   @media (min-height:620px){ .share-link{font-size:18px;padding:6px 14px} }
   @media (min-height:800px){ .share-link{font-size:20px;padding:7px 16px} }
+  /* 아이폰 홈 화면 추가 안내 */
+  .ios-guide{position:fixed;inset:0;z-index:70;background:rgba(24,14,46,.88);display:flex;
+    align-items:center;justify-content:center;padding:16px}
+  .ios-card{background:var(--plum-lift);border-radius:20px;padding:16px;max-width:360px;width:100%;
+    max-height:92vh;overflow:auto;text-align:center;color:#fff;font-family:var(--display)}
+  .ios-card b{display:block;font-size:20px;margin-bottom:10px}
+  .ios-card img{max-width:100%;max-height:58vh;width:auto;height:auto;border-radius:12px;display:block;margin:0 auto 12px}
+  .ios-card p{font-size:16px;line-height:1.5;margin:0 0 12px}
   @keyframes loot{0%{opacity:0;transform:translateX(-50%) scale(.4)}
     35%{opacity:1;transform:translateX(-50%) scale(1.15)}
     100%{opacity:0;transform:translateX(-50%) translateY(-40px) scale(1)}}
@@ -682,6 +690,7 @@
   <button class="go-btn resume" id="resumeBtn" style="display:none">이어서 하기</button>
   <!-- 공유는 부차적 동작이라 버튼 아닌 작은 글자 링크로 출발 아래에. 캐릭터를 안 골라도 늘 눌린다. -->
   <a class="share-link" id="shareTop" role="button" tabindex="0">🔗 친구에게 추천하기</a>
+  <a class="share-link" id="iosHint" role="button" tabindex="0" style="display:none">📲 아이폰에서 앱처럼 쓰기</a>
   <!-- 구글플레이는 앱 안에도 개인정보처리방침 링크를 두라고 요구한다.
        앞의 둘은 앱에 함께 담긴 파일이라 바깥으로 나가는 링크가 아니다.
        '의견 보내기'만 바깥(메일 앱)으로 나가므로 href 를 두지 않고 스크립트가 처리한다
@@ -897,6 +906,14 @@
 <div class="count" id="count"><b>3</b></div>
 <div class="pop" id="pop"></div>
 <div class="toast" id="toast"></div>
+<div class="ios-guide" id="iosGuide" style="display:none" role="dialog" aria-label="아이폰에서 앱처럼 쓰기">
+  <div class="ios-card">
+    <b>아이폰에서 앱처럼 쓰기</b>
+    <img id="iosImg" alt="사파리 공유 단추를 누르고 홈 화면에 추가하는 방법" src="" width="300" height="400">
+    <p id="iosText" style="display:none">사파리 아래 공유 단추를 누르고 「홈 화면에 추가」를 고르면 앱처럼 써요.</p>
+    <button class="go-btn" id="iosClose" style="font-size:18px;padding:10px 24px">닫기</button>
+  </div>
+</div>
 
 <div class="veil" id="veil">
   <div class="card">
@@ -2615,10 +2632,13 @@ function showPop(e){ const p=$('pop'); p.textContent=e;
    - 아이폰·그 밖은 웹 버전       (언제나 열린다) */
 var SHARE_URL_AOS = 'https://play.google.com/store/apps/details?id=com.sya.sarangnara';
 var SHARE_URL_WEB = 'https://sya-apps.github.io/sarangnara/';
-var SHARE_TEXT = '사랑나라 - 피아노 동요\n피아노를 쳐서 회색이 된 마을에 색을 되돌리는 아이 게임이에요.';
+var SHARE_URL_GET = 'https://sya-apps.github.io/sarangnara/get.html';
+var SHARE_TEXT = '「사랑나라」 피아노를 쳐서 회색 마을에 색을 되돌리는 아이 게임이에요.';
 function shareBody(){
-  /* 스토어 주소는 공개되기 전이라 넣지 않는다. 공개되면 대문 링크가 폰에서 Play 로 이어 준다. */
-  return SHARE_TEXT + '\n\n' + SHARE_URL_WEB;
+  /* 링크는 받기 페이지 하나만 보낸다(2026-10-09 학원시간표 방식).
+     카톡은 Play 주소의 미리보기를 못 만들어서, 이 페이지가 미리보기를 대신하고
+     받는 기기에 맞게 Play 또는 웹으로 보내 준다. 옛 링크 여러 개는 뺐다. */
+  return SHARE_TEXT + '\n' + SHARE_URL_GET;
 }
 
 var toastTimer = 0;
@@ -3104,6 +3124,30 @@ $('restartBtn').addEventListener('click', ()=>{
   helped=Array(N_PEOPLE).fill(false); totalScore=0; clearSave();
   buildMap(); show('screenTitle'); refreshResume(); introBGM();
 });
+/* 아이폰에서 앱처럼 쓰기 안내 (2026-10-09 · 나란히 방식)
+   보이는 조건: 웹 + 아이폰·아이패드 사파리 + 홈 화면 앱이 아닐 때만.
+   안드로이드·PC·폰 앱(Capacitor)·크롬·파폭·네이버·카톡 인앱에서는 숨긴다. 새 데이터 수집·저장 없음. */
+(function(){
+  var hint = $('iosHint'); if(!hint) return;
+  var ua = navigator.userAgent || '';
+  var ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  var otherBrowser = /CriOS|FxiOS|EdgiOS|OPiOS|NAVER|KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(ua);
+  var standalone = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  var inApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if(!ios || otherBrowser || standalone || inApp) return;
+  hint.style.display = '';
+  var g = $('iosGuide'), img = $('iosImg'), txt = $('iosText');
+  hint.addEventListener('click', function(){
+    if(!img.getAttribute('src')){
+      img.onerror = function(){ img.style.display='none'; txt.style.display='block'; };
+      img.src = 'https://sya-apps.github.io/guide/ios-add-to-home.png';
+    }
+    g.style.display = 'flex';
+  });
+  $('iosClose').addEventListener('click', function(){ g.style.display = 'none'; });
+  g.addEventListener('click', function(e){ if(e.target === g) g.style.display = 'none'; });
+})();
 /* 이 게임 공유하기 — 타이틀 출발 옆, 엔딩, 지도 상단바 모두 같은 동작 */
 $('endShareBtn').addEventListener('click', shareApp);
 ['shareTop','shareMap'].forEach(id=>{ var b=$(id); if(b) b.addEventListener('click', shareApp); });
@@ -3237,7 +3281,7 @@ buildMap();
    진짜 버전**(versionName(versionCode))을 물어서 적는다. 못 얻으면 숫자만 적는다.
    ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
 (function(){
-  const APP_VER = 'v57';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
+  const APP_VER = 'v58';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
 
   const el = $('verTag');
   if(!el) return;

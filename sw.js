@@ -14,7 +14,12 @@
    그래서 웹을 고쳐 배포할 때는 두 값을 **같이** 올린다 — 사람이 부르는 버전이
    하나뿐이어야 "무슨 버전이야?" 에 답이 갈리지 않는다. 올리는 걸 깜빡해도 화면의
    날짜가 진짜를 말하므로 크게 틀어지지는 않는다. */
-const VER = 'sarangnara-v58';
+/* 같은 사이트(sya-apps.github.io) 아래 앱들이 캐시 저장소를 같이 쓴다(2026-10-09 공통 규칙).
+   그래서 ① 캐시 이름은 앱 접두어 + 폴더 + 판번호 ② 옛 캐시는 **자기 접두어 것만** 지운다
+   ③ 요청은 **자기 폴더 경로만** 다룬다. 안 그러면 남의 앱 캐시를 지우고 남의 요청을 가로챈다. */
+const SCOPE = new URL('./', self.location).pathname;   // 예: /sarangnara/
+const PREFIX = 'sarangnara';
+const VER = PREFIX + ':' + SCOPE + ':v59';
 const FILES = [
   './',
   './index.html',
@@ -38,7 +43,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(ks => Promise.all(ks.filter(k => k !== VER).map(k => caches.delete(k))))
+      .then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIX) && k !== VER).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -60,6 +65,7 @@ self.addEventListener('fetch', e => {
 
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
+  if (!url.pathname.startsWith(SCOPE)) return;   // 남의 앱 요청은 건드리지 않는다
 
   const isPage = req.mode === 'navigate' ||
                  url.pathname.endsWith('/') ||

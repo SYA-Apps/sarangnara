@@ -65,6 +65,13 @@
   .rotate h1{font-family:var(--display);font-size:29px;color:var(--canary)}
   .rotate p{font-size:12px;color:var(--dim);line-height:1.7}
   @media (orientation:portrait){.rotate{display:flex}}
+  /* 접는 폰·태블릿을 세로로 든 큰 화면(짧은 변 600px 이상)에선 안내를 크게 — 게임은 가로 전용 */
+  @media (orientation:portrait) and (min-width:600px){
+    .rotate{gap:24px}
+    .rotate svg{width:140px}
+    .rotate h1{font-size:54px}
+    .rotate p{font-size:22px}
+  }
 
   /* ================= 타이틀 ================= */
   #screenTitle{background:radial-gradient(120% 90% at 50% 10%, #6B3FA0, #2E1B4D 60%, #180E2E);
@@ -3281,7 +3288,7 @@ buildMap();
    진짜 버전**(versionName(versionCode))을 물어서 적는다. 못 얻으면 숫자만 적는다.
    ⚠️ 옛 웹뷰(갤S8=크롬 72)를 지원해야 하므로 `?.`·`??` 를 쓰지 않는다. */
 (function(){
-  const APP_VER = 'v59';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
+  const APP_VER = 'v60';   // ← 웹을 고쳐 배포할 때 올린다. sw.js 의 VER 과 **같은 값으로** 맞춘다
 
   const el = $('verTag');
   if(!el) return;

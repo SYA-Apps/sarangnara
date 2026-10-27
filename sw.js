@@ -19,7 +19,7 @@
    ③ 요청은 **자기 폴더 경로만** 다룬다. 안 그러면 남의 앱 캐시를 지우고 남의 요청을 가로챈다. */
 const SCOPE = new URL('./', self.location).pathname;   // 예: /sarangnara/
 const PREFIX = 'sarangnara';
-const VER = PREFIX + ':' + SCOPE + ':v59';
+const VER = PREFIX + ':' + SCOPE + ':v60';
 const FILES = [
   './',
   './index.html',

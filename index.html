@@ -3277,6 +3277,22 @@ window.addEventListener('orientationchange', ()=>setTimeout(()=>{
   if($('screenPlay').classList.contains('on')){ layout(); renderSystem(); }
 },250));
 
+/* 타이틀이 화면보다 크면(처음 보는 기기 · 좁은 폭 · 안전 영역) 스스로 줄여서 한 화면에 맞춘다.
+   기기 크기를 미리 몰라도 세로 스크롤이 안 생기게 하는 마지막 안전망 */
+function fitTitle(){
+  const sc=$('screenTitle'), w=document.querySelector('#screenTitle .t-wrap');
+  if(!sc||!w||!sc.classList.contains('on')) return;
+  w.style.zoom=''; 
+  const cs=getComputedStyle(sc);
+  const avail=sc.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-6;
+  const need=w.offsetHeight;
+  if(need>avail && avail>120) w.style.zoom=Math.max(.5,avail/need).toFixed(3);
+}
+window.addEventListener('resize',fitTitle);
+window.addEventListener('orientationchange',()=>setTimeout(fitTitle,300));
+setInterval(fitTitle,1000);
+setTimeout(fitTitle,300);
+
 buildMap();
 
 /* ======================================================================

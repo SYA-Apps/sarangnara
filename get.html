@@ -74,6 +74,9 @@
   var iphone = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
   var stay = /[?&]stay/.test(location.search);
   var play = 'https://play.google.com/store/apps/details?id=com.sya.sarangnara';
+  /* 쓰레드 글 링크(?from=threads)로 온 설치를 세려는 표시. 안드로이드는 Play 설치 출처, 아이폰은 App Store 캠페인. 다른 값은 지금처럼 */
+  var threads = /[?&]from=threads(&|$)/.test(location.search);
+  if (threads) play += '&referrer=utm_source%3Dthreads';
   var web = 'https://sya-apps.github.io/sarangnara/';
   var go = document.getElementById('go'), alt = document.getElementById('alt'), msg = document.getElementById('msg');
   if (android) {
@@ -84,7 +87,7 @@
   } else if (iphone) {
     /* 아이폰은 자동으로 넘기지 않는다. 2026-11-26 앱스토어 공개(ios_release_switch.py) */
     msg.textContent = '아이폰이에요. App Store에서 앱을 받아요.';
-    go.textContent = 'App Store에서 앱 받기'; go.href = 'https://apps.apple.com/kr/app/id6823817450';
+    go.textContent = 'App Store에서 앱 받기'; go.href = 'https://apps.apple.com/kr/app/id6823817450' + (threads ? '?ct=threads' : '');
     alt.style.display = 'block'; alt.textContent = '웹으로 열기'; alt.href = web;
   } else {
     msg.textContent = '컴퓨터예요. 웹으로 열어요.';
